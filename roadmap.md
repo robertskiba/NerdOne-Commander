@@ -41,7 +41,7 @@ Zielplattform: Windows 11, wenn möglich auch Windows 10.
 - [ ] Portabler Modus: ohne Installation lauffähig, möglichst als eine EXE
 - [ ] Bildbetrachter: Ersatz für die fehlende PictView-Engine, ausschließlich OSS (ohne WIC)
 - [ ] Bildbetrachter unterstützt alle aktuellen Bildformate, die ein Mobiltelefon liefern kann (z. B. HEIC)
-- [ ] Sortierung von Bildern und Videos, eventuell nach vorgegebenen Zielpfaden oder Schemata
+- [ ] Bilder, Videos und PDFs einsortieren, eventuell nach vorgegebenen Zielpfaden oder Schemata
 - [ ] Viewer für PDF, HTML und Markdown mit PDFium, litehtml und md4c
 - [ ] RAR-Plugin von der proprietären unrar.dll auf den quelloffenen RAR-Entpacker von 7-Zip umstellen
 
