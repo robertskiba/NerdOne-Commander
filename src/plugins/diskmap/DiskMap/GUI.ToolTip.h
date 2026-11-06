@@ -672,11 +672,7 @@ public:
         if (!a)
         {
             BOOL isShadow = FALSE;
-            if (SalIsWindowsVersionOrGreater(6, 0, 0) || // Vista
-                SalIsWindowsVersionOrGreater(5, 1, 0))   // Windows XP
-            {
-                SystemParametersInfo(SPI_GETDROPSHADOW, 0, &isShadow, 0);
-            }
+            SystemParametersInfo(SPI_GETDROPSHADOW, 0, &isShadow, 0);
 
             WNDCLASSEX wcex;
 

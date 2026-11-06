@@ -47,6 +47,4 @@
 // and the old version we used does not have x64 support; the solution is to move to the TagLib project
 // http://taglib.github.com/ which is tiny and will allow us to support additional formats
 // we need to examine its MPL license, but it is apparently more permissive than LGPL and the library could be compiled in
-#if ((_MSC_VER < 1600) && !defined(_WIN64)) // only VC2008 and x87
 //#define _OGG_SUPPORT_
-#endif

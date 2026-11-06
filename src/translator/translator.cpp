@@ -32,8 +32,6 @@ char QuietExportSpellChecker[MAX_PATH] = {0};
 char OpenLayoutEditorDialogID[MAX_PATH] = {0};
 BYTE* SharedMemoryCopy = NULL;
 
-BOOL Windows7AndLater = FALSE;
-
 // ****************************************************************************
 
 class C__StrCriticalSection
@@ -577,14 +575,6 @@ WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR cmdLine, int cmd
     if (!InitCommonControlsEx(&initCtrls))
     {
         TRACE_E("InitCommonControlsEx failed");
-        return 1;
-    }
-
-    Windows7AndLater = SalIsWindowsVersionOrGreater(6, 1, 0);
-    if (!Windows7AndLater)
-    {
-        MessageBox(NULL, "Translator needs Windows 7 or later.",
-                   FRAMEWINDOW_NAME, MB_OK | MB_ICONEXCLAMATION);
         return 1;
     }
 

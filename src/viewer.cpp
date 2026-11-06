@@ -1631,11 +1631,6 @@ void CViewerWindow::SetViewerFont()
 
         // Vista: the fixedsys font contains characters that do not have the expected width (even though it is a fixed-width font), therefore
         // we measure individual characters and map those with an incorrect width to a replacement character with the correct width
-        if (!WindowsXP64AndLater && !ViewerFontMeasured) // before XP64 and Vista we did not run into this mess, so we will not even test it (on XP, W2K, NT4, etc.)
-        {
-            ViewerFontMeasured = TRUE;
-            ViewerFontNeedsMapping = FALSE;
-        }
         if (!ViewerFontMeasured)
         {
             HFONT oldFont = (HFONT)SelectObject(Bitmap.HMemDC, ViewerFont);

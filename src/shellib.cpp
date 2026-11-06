@@ -2180,39 +2180,28 @@ void OpenFolderAndFocusItem(HWND hOwnerWindow, const char* dir, const char* item
         SalPathAppend(mydir, item, 2 * MAX_PATH);
     if (PathContainsValidComponents((char*)mydir, FALSE))
     {
-        BOOL useOldMethod = TRUE; // SHOpenFolderAndSelectItems is supported on XP and later, and we still run on W2K and on XP without any service pack
-        if (item[0] != 0)         // if no item should be selected, avoid using SHOpenFolderAndSelectItems because it would display the parent directory (see MSDN)
+        BOOL useOldMethod = TRUE;
+        if (item[0] != 0) // if no item should be selected, avoid using SHOpenFolderAndSelectItems because it would display the parent directory (see MSDN)
         {
-            HMODULE hShell32 = LoadLibrary("shell32.dll");
-            if (hShell32 != NULL)
+            LPITEMIDLIST pidl = NULL;
+            LPSHELLFOLDER desktop;
+            if (SUCCEEDED(SHGetDesktopFolder(&desktop)))
             {
-                typedef HRESULT(WINAPI * F_SHOpenFolderAndSelectItems)(PCIDLIST_ABSOLUTE pidlFolder, UINT cidl, PCUITEMID_CHILD_ARRAY apidl, DWORD dwFlags);
-                F_SHOpenFolderAndSelectItems mySHOpenFolderAndSelectItems = NULL;
-                mySHOpenFolderAndSelectItems = (F_SHOpenFolderAndSelectItems)GetProcAddress(hShell32, "SHOpenFolderAndSelectItems"); // Min: XP
-                if (mySHOpenFolderAndSelectItems != NULL)
-                {
-                    LPITEMIDLIST pidl = NULL;
-                    LPSHELLFOLDER desktop;
-                    if (SUCCEEDED(SHGetDesktopFolder(&desktop)))
-                    {
-                        pidl = GetItemIdListForFileName(desktop, mydir);
-                        desktop->Release();
-                    }
-                    else
-                        TRACE_E("SHGetDesktopFolder error");
+                pidl = GetItemIdListForFileName(desktop, mydir);
+                desktop->Release();
+            }
+            else
+                TRACE_E("SHGetDesktopFolder error");
 
-                    mySHOpenFolderAndSelectItems(pidl, 0, NULL, 0);
-                    useOldMethod = FALSE;
+            SHOpenFolderAndSelectItems(pidl, 0, NULL, 0);
+            useOldMethod = FALSE;
 
-                    IMalloc* alloc;
-                    if (SUCCEEDED(CoGetMalloc(1, &alloc)))
-                    {
-                        if (pidl != NULL && alloc->DidAlloc(pidl) == 1)
-                            alloc->Free(pidl);
-                        alloc->Release();
-                    }
-                }
-                FreeLibrary(hShell32);
+            IMalloc* alloc;
+            if (SUCCEEDED(CoGetMalloc(1, &alloc)))
+            {
+                if (pidl != NULL && alloc->DidAlloc(pidl) == 1)
+                    alloc->Free(pidl);
+                alloc->Release();
             }
         }
 

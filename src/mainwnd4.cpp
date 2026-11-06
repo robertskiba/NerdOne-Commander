@@ -445,15 +445,11 @@ BOOL CheckIfCanBeExecuted(BOOL buildBat, int commandLen, int argumentsLen)
     int cmdLineLen = commandLen + argumentsLen + 1; // +1 for the space between command and arguments
     if (buildBat)                                   // launching via a .bat file
     {
-        if (WindowsVistaAndLater)
-            return cmdLineLen <= 8191; // Vista/Win7: in reality the limit is 32776, but only 8191 works (with longer parameters, characters are apparently erased due to a Windows bug; tested on Vista and Win7)
-        return cmdLineLen <= 8185;     // XP/XP64
+        return cmdLineLen <= 8191; // Vista/Win7: in reality the limit is 32776, but only 8191 works (with longer parameters, characters are apparently erased due to a Windows bug; tested on Vista and Win7)
     }
     else // launching via ShellExecuteEx
     {
-        if (Windows7AndLater)
-            return cmdLineLen <= 32764; // Win7
-        return cmdLineLen <= 2080;      // W2K/XP/XP64/Vista
+        return cmdLineLen <= 32764; // Win7
     }
 }
 

@@ -386,63 +386,11 @@ BOOL IsAdminShareExtraLogonFailureErr(DWORD err, const char* root)
     return FALSE;
 }
 
-typedef struct _CREDUI_INFOA
-{
-    DWORD cbSize;
-    HWND hwndParent;
-    PCSTR pszMessageText;
-    PCSTR pszCaptionText;
-    HBITMAP hbmBanner;
-} CREDUI_INFOA, *PCREDUI_INFOA;
-
-#ifndef __SECHANDLE_DEFINED__
-typedef struct _SecHandle
-{
-    ULONG_PTR dwLower;
-    ULONG_PTR dwUpper;
-} SecHandle, *PSecHandle;
-
-#define __SECHANDLE_DEFINED__
-#endif // __SECHANDLE_DEFINED__
-
-typedef PSecHandle PCtxtHandle;
-
-typedef WINADVAPI DWORD(WINAPI* FT_CredUIPromptForCredentialsA)(
-    PCREDUI_INFOA pUiInfo,
-    PCSTR pszTargetName,
-    PCtxtHandle pContext,
-    DWORD dwAuthError,
-    PSTR pszUserName,
-    ULONG ulUserNameBufferSize,
-    PSTR pszPassword,
-    ULONG ulPasswordBufferSize,
-    BOOL* save,
-    DWORD dwFlags);
-
-typedef WINADVAPI DWORD(WINAPI* FT_CredUIConfirmCredentialsA)(
-    PCSTR pszTargetName,
-    BOOL bConfirm);
-
-/*
-typedef WINADVAPI DWORD (WINAPI *FT_CredUIParseUserNameA)(
-    CONST CHAR *userName,
-    CHAR *user,
-    ULONG userBufferSize,
-    CHAR *domain,
-    ULONG domainBufferSize);
-*/
-
-#define CREDUI_FLAGS_DO_NOT_PERSIST 0x00002      // Do not show "Save" checkbox, and do not persist credentials
-#define CREDUI_FLAGS_EXPECT_CONFIRMATION 0x20000 // Do not persist unless the caller later confirms the credential via CredUIConfirmCredential() API
-#define CREDUI_FLAGS_GENERIC_CREDENTIALS 0x40000 // Credential is a generic credential
-
 BOOL RestoreNetworkConnection(HWND parent, const char* name, const char* remoteName, DWORD* retErr, LPNETRESOURCE lpNetResource)
 {
     CALL_STACK_MESSAGE3("RestoreNetworkConnection(, %s, %s, ,)", name, remoteName);
 
     BOOL ret = TRUE;
-    char serverName[MAX_PATH];
-    serverName[0] = 0;
     NETRESOURCE nsBuf;
     NETRESOURCE* ns = NULL;
     char userNameBuf[USERNAME_MAXLEN];
@@ -451,27 +399,9 @@ BOOL RestoreNetworkConnection(HWND parent, const char* name, const char* remoteN
 
     if (lpNetResource != NULL)
     {
-        if (!Windows7AndLater &&
-            lpNetResource->lpRemoteName != NULL && lpNetResource->lpRemoteName[0] == '\\' &&
-            lpNetResource->lpRemoteName[1] == '\\' && lpNetResource->lpRemoteName[2] != '\\' &&
-            lpNetResource->lpRemoteName[2] != 0)
-        {
-            char* end = strchr(lpNetResource->lpRemoteName + 2, '\\');
-            if (end == NULL || *(end + 1) == 0)
-            {
-                if (end == NULL)
-                    lstrcpyn(serverName, lpNetResource->lpRemoteName + 2, MAX_PATH);
-                else
-                    lstrcpyn(serverName, lpNetResource->lpRemoteName + 2, (int)min(MAX_PATH, (end - (lpNetResource->lpRemoteName + 2)) + 1));
-            }
-        }
-        if (serverName[0] == 0) // this is not a \\server or \\server\ variant, we will solve it by calling the original code
-        {
-            *retErr = WNetAddConnection2(lpNetResource, NULL, NULL, CONNECT_INTERACTIVE);
-            return *retErr == NO_ERROR;
-        }
-        ns = lpNetResource;
-        remoteName = ns->lpRemoteName;
+        // since Windows 7 the system dialog is used for all paths, we will solve it by calling the original code
+        *retErr = WNetAddConnection2(lpNetResource, NULL, NULL, CONNECT_INTERACTIVE);
+        return *retErr == NO_ERROR;
     }
     else
     {
@@ -480,17 +410,6 @@ BOOL RestoreNetworkConnection(HWND parent, const char* name, const char* remoteN
         nsBuf.lpRemoteName = (char*)remoteName;
         nsBuf.lpProvider = NULL;
         ns = &nsBuf;
-
-        if (remoteName[0] == '\\' && remoteName[1] == '\\' && remoteName[2] != '\\')
-        {
-            const char* end = strchr(remoteName + 2, '\\');
-            if (end != NULL && *(end + 1) != '\\' && *(end + 1) != 0)
-            {
-                const char* last = strchr(end + 2, '\\');
-                if (last == NULL || *(last + 1) == 0) // show the custom dialog on XP and Vista only for simple UNC paths: "\\server\share" and "\\server\share\\"
-                    lstrcpyn(serverName, remoteName + 2, (int)min(MAX_PATH, (end - (remoteName + 2)) + 1));
-            }
-        }
 
         if (name != NULL &&                                                                     // mapped paths only (to a drive letter)
             GetUserName(name, remoteName, userNameBuf, USERNAME_MAXLEN, providerBuf, MAX_PATH)) // unknown user name for the restored connection
@@ -507,100 +426,9 @@ BOOL RestoreNetworkConnection(HWND parent, const char* name, const char* remoteN
     DWORD err;
     char* passwd = NULL;
 
-    // XP+Vista: load functions dynamically to obtain the username and password in the standard dialog (including the option to save them to Credential Manager; see "Manage your network passwords" in User Accounts in Control Panel)
-    // Windows 7: uses a new dialog again, and no interface for it has been found yet
-    HMODULE credUIDLL = !Windows7AndLater ? HANDLES(LoadLibrary("CREDUI.DLL")) : NULL;
-    FT_CredUIPromptForCredentialsA credUIPromptForCredentialsA = NULL;
-    FT_CredUIConfirmCredentialsA credUIConfirmCredentialsA = NULL;
-    //  FT_CredUIParseUserNameA credUIParseUserNameA = NULL;
-    if (credUIDLL != NULL)
-    {
-        credUIPromptForCredentialsA = (FT_CredUIPromptForCredentialsA)GetProcAddress(credUIDLL, "CredUIPromptForCredentialsA"); // Min: XP
-        credUIConfirmCredentialsA = (FT_CredUIConfirmCredentialsA)GetProcAddress(credUIDLL, "CredUIConfirmCredentialsA");       // Min: XP
-                                                                                                                                //    credUIParseUserNameA = (FT_CredUIParseUserNameA)GetProcAddress(credUIDLL, "CredUIParseUserNameA"); // Min: XP
-    }
-    if (!Windows7AndLater &&
-        (credUIPromptForCredentialsA == NULL || credUIConfirmCredentialsA == NULL /*||
-       credUIParseUserNameA == NULL*/
-         ))
-    {
-        //    TRACE_E("RestoreNetworkConnection(): unable to use CredUIPromptForCredentialsA, CredUIConfirmCredentialsA, or credUIParseUserNameA function");
-        TRACE_E("RestoreNetworkConnection(): unable to use CredUIPromptForCredentialsA or CredUIConfirmCredentialsAfunction");
-    }
-
-    BOOL connectInteractive = FALSE; // TRUE: Windows 7 always, XP+Vista only if CREDUI.DLL is not available or it is not a simple UNC path: we will use the CONNECT_INTERACTIVE flag (can do with "network passwords") and therefore the blocking call WNetAddConnection3 (must be in the same thread with the parent)
-    BOOL confirmCred = FALSE;        // TRUE: CredUIConfirmCredentialsA must be called
-
-    //  char domain[DOMAIN_MAXLEN];
-    CREDUI_INFOA uiInfo = {0};
-    uiInfo.cbSize = sizeof(uiInfo);
-    uiInfo.hwndParent = parent;
-
-    char captionBuf[MAX_PATH + 100];
-    captionBuf[0] = 0;
-    char messageBuf[MAX_PATH + 100];
-    messageBuf[0] = 0;
-
-    if (name == NULL) // map UNC paths to "none"
-    {
-        if (!Windows7AndLater && // Windows 7 uses a new dialog again, and no interface for it has been found yet
-            credUIPromptForCredentialsA != NULL && credUIConfirmCredentialsA != NULL /*&& credUIParseUserNameA != NULL*/ &&
-            serverName[0] != 0) // own dialog for entering username+password we will show only for simple UNC paths (\\server\share), we will leave DFS and others to the system
-        {
-            BOOL save = FALSE;
-
-            err = credUIPromptForCredentialsA(&uiInfo, serverName, NULL, 0, dlg.User, sizeof(dlg.User),
-                                              dlg.Passwd, sizeof(dlg.Passwd), &save,
-                                              CREDUI_FLAGS_EXPECT_CONFIRMATION);
-            if (err == ERROR_CANCELLED)
-                ret = FALSE; // user Canceled
-            else
-            {
-                if (lpNetResource == NULL)
-                    UpdateWindow(MainWindow->HWindow); // not useful from Network Neighborhood
-                if (err == NO_ERROR)                   // user clicked OK
-                {
-                    confirmCred = TRUE;
-                    lstrcpyn(userNameBuf, dlg.User, USERNAME_MAXLEN);
-                    userName = userNameBuf;
-                    passwd = dlg.Passwd;
-                    /* // there was a problem with stripping the domain from the username; users could not log in because we converted their domain username into a local one
-                              if (credUIParseUserNameA(dlg.User, userNameBuf, USERNAME_MAXLEN, domain, DOMAIN_MAXLEN) == NO_ERROR)
-                              {
-                                confirmCred = TRUE;
-                                userName = userNameBuf;
-                                passwd = dlg.Passwd;
-                              }
-                              else
-                              {
-                                TRACE_E("RestoreNetworkConnection(): CredUIParseUserNameA failed for: " << dlg.User);
-                                userNameBuf[0] = 0;
-                                userName = NULL;
-                                credUIConfirmCredentialsA(serverName, FALSE);
-                                connectInteractive = TRUE;  // another error, let the system implementation handle it
-                                err = ERROR_BAD_USERNAME;
-                              }
-                    */
-                }
-                else
-                    connectInteractive = TRUE; // another error, let the system variant deal with it
-            }
-            if (!confirmCred)
-                memset(dlg.Passwd, 0, sizeof(dlg.Passwd));
-        }
-        else
-            connectInteractive = TRUE;
-    }
-    else
-    {
-        if (!Windows7AndLater)
-        {
-            _snprintf_s(captionBuf, _TRUNCATE, LoadStr(IDS_RECONNET_TITLE), remoteName);
-            _snprintf_s(messageBuf, _TRUNCATE, LoadStr(IDS_RECONNET_TEXT), remoteName);
-            uiInfo.pszMessageText = messageBuf;
-            uiInfo.pszCaptionText = captionBuf;
-        }
-    }
+    // TRUE: we will use the CONNECT_INTERACTIVE flag (can do with "network passwords") and therefore the blocking
+    // call WNetAddConnection3 (must be in the same thread with the parent); UNC paths mapped to "none" always use it
+    BOOL connectInteractive = (name == NULL);
 
     while (ret)
     {
@@ -661,12 +489,6 @@ BOOL RestoreNetworkConnection(HWND parent, const char* name, const char* remoteN
             memset(dlg.Passwd, 0, sizeof(dlg.Passwd));
             passwd = NULL;
 
-            if (confirmCred) // we will report the result of the password verification (according to this, it will or will not be saved in the Credential Manager)
-            {
-                credUIConfirmCredentialsA(serverName, err == ERROR_SUCCESS);
-                confirmCred = FALSE;
-            }
-
             if (brk)
             {
                 ret = FALSE; // ESC in NonBlockingWNetAddConnection3()
@@ -713,75 +535,16 @@ BOOL RestoreNetworkConnection(HWND parent, const char* name, const char* remoteN
                 }
             }
 
-            BOOL newConnectInteractive = FALSE;
-            if (!Windows7AndLater && // Windows 7 uses a new dialog again, and no interface for it has been found yet
-                credUIPromptForCredentialsA != NULL && credUIConfirmCredentialsA != NULL /*&& credUIParseUserNameA != NULL*/ &&
-                serverName[0] != 0) // own dialog for entering username+password we will show only for simple UNC paths (\\server\share), we will leave DFS and others to the system
+            // let the system dialog (CONNECT_INTERACTIVE) ask for the user name + password
+            if (!connectInteractive) // try interactive mode only if it has not been used already (to prevent an infinite loop)
             {
-                BOOL save = FALSE;
-                err = credUIPromptForCredentialsA(&uiInfo, serverName, NULL, 0, dlg.User, sizeof(dlg.User),
-                                                  dlg.Passwd, sizeof(dlg.Passwd), &save,
-                                                  (name != NULL ? CREDUI_FLAGS_DO_NOT_PERSIST | CREDUI_FLAGS_GENERIC_CREDENTIALS : CREDUI_FLAGS_EXPECT_CONFIRMATION));
-                if (err == ERROR_CANCELLED)
-                {
-                    ret = FALSE; // user Canceled
-                    break;
-                }
-                else
-                {
-                    if (lpNetResource == NULL)
-                        UpdateWindow(MainWindow->HWindow); // not meaningful when used from Network Neighborhood
-                    if (err == NO_ERROR)                   // user clicked OK
-                    {
-                        if (name == NULL)
-                            confirmCred = TRUE;
-                        lstrcpyn(userNameBuf, dlg.User, USERNAME_MAXLEN);
-                        userName = name != NULL && dlg.User[0] == 0 ? NULL : userNameBuf;
-                        passwd = name != NULL && dlg.User[0] == 0 && dlg.Passwd[0] == 0 ? NULL : dlg.Passwd;
-                        continue;
-                        /*  // there was a problem with trimming the domain from the username, they just couldn't log in because we made their domain name local
-            BOOL onlyUserName = name != NULL && strchr(dlg.User, '\\') == NULL && strchr(dlg.User, '@') == NULL;
-            if (name != NULL && dlg.User[0] == 0 || onlyUserName ||
-                credUIParseUserNameA(dlg.User, userNameBuf, USERNAME_MAXLEN, domain, DOMAIN_MAXLEN) == NO_ERROR)
-            {
-              if (name == NULL) confirmCred = TRUE;
-              if (onlyUserName) lstrcpyn(userNameBuf, dlg.User, USERNAME_MAXLEN);
-              userName = name != NULL && dlg.User[0] == 0 ? NULL : userNameBuf;
-              passwd = name != NULL && dlg.User[0] == 0 && dlg.Passwd[0] == 0 ? NULL : dlg.Passwd;
-              continue;
+                connectInteractive = TRUE;
+                continue;
             }
             else
             {
-              TRACE_E("RestoreNetworkConnection(): CredUIParseUserNameA failed for: " << dlg.User);
-              userNameBuf[0] = 0;
-              userName = NULL;
-              if (name == NULL) credUIConfirmCredentialsA(serverName, FALSE);
-              newConnectInteractive = TRUE;  // other error, let the system variant deal with it
-              err = ERROR_BAD_USERNAME;
-            }
-*/
-                    }
-                    else
-                        newConnectInteractive = TRUE; // other error, let the system variant deal with it
-                }
-                memset(dlg.Passwd, 0, sizeof(dlg.Passwd));
-                passwd = NULL;
-            }
-            else
-                newConnectInteractive = TRUE;
-
-            if (newConnectInteractive)
-            {
-                if (!connectInteractive) // try interactive mode only if it has not been used already (to prevent an infinite loop)
-                {
-                    connectInteractive = TRUE;
-                    continue;
-                }
-                else
-                {
-                    ret = FALSE;
-                    break;
-                }
+                ret = FALSE;
+                break;
             }
         }
 
@@ -808,8 +571,6 @@ BOOL RestoreNetworkConnection(HWND parent, const char* name, const char* remoteN
         }
     }
     memset(dlg.Passwd, 0, sizeof(dlg.Passwd));
-    if (credUIDLL != NULL)
-        HANDLES(FreeLibrary(credUIDLL));
     if (retErr != NULL)
         *retErr = err;
     return ret;
@@ -1462,39 +1223,28 @@ void InitOneDrivePath()
     OneDrivePath[0] = 0; // The OneDrive path is resolved every time, because after the "Unlink OneDrive" command in OneDrive, it should no longer be shown.
 
     BOOL done = FALSE;
-    if (WindowsVistaAndLater) // SHGetKnownFolderPath has been available since Vista
     {
-        typedef HRESULT(WINAPI * FSHGetKnownFolderPath)(REFKNOWNFOLDERID rfid,
-                                                        DWORD /* KNOWN_FOLDER_FLAG */ dwFlags,
-                                                        HANDLE hToken,
-                                                        PWSTR * ppszPath); // free *ppszPath with CoTaskMemFree
-        FSHGetKnownFolderPath DynSHGetKnownFolderPath = (FSHGetKnownFolderPath)GetProcAddress(GetModuleHandle("shell32.dll"),
-                                                                                              "SHGetKnownFolderPath");
-        if (DynSHGetKnownFolderPath != NULL)
+        PWSTR path = NULL; // free with CoTaskMemFree
+        if (SHGetKnownFolderPath(my_FOLDERID_SkyDrive, 0, NULL, &path) == S_OK && path != NULL)
         {
-            PWSTR path = NULL;
-            if (DynSHGetKnownFolderPath(my_FOLDERID_SkyDrive, 0, NULL, &path) == S_OK && path != NULL)
+            if (path[0] != 0) // FOLDERID_SkyDrive was introduced in Windows 8.1, so it should not be necessary to look it up in the registry
             {
-                if (path[0] != 0) // FOLDERID_SkyDrive was introduced in Windows 8.1, so it should not be necessary to look it up in the registry
-                {
-                    done = ConvertU2A(path, -1, OneDrivePath, _countof(OneDrivePath)) != 0;
-                    if (!done)
-                        OneDrivePath[0] = 0; // just to be safe
-                                             //else TRACE_I("OneDrive path (FOLDERID_SkyDrive): " << OneDrivePath);
-                }
-                CoTaskMemFree(path);
+                done = ConvertU2A(path, -1, OneDrivePath, _countof(OneDrivePath)) != 0;
+                if (!done)
+                    OneDrivePath[0] = 0; // just to be safe
+                                         //else TRACE_I("OneDrive path (FOLDERID_SkyDrive): " << OneDrivePath);
             }
         }
+        if (path != NULL)
+            CoTaskMemFree(path);
     }
 
     HKEY hKey;
     char path[MAX_PATH];
-    for (int i = 0; !done && i < 2; i++) // theoretically only needed for Windows 8 and earlier (from 8.1 onward we have FOLDERID_SkyDrive)
+    for (int i = 0; !done && i < 2; i++) // fallback when FOLDERID_SkyDrive is not available
     {
         if (HANDLES_Q(RegOpenKeyEx(HKEY_CURRENT_USER,
-                                   Windows8_1AndLater && !Windows10AndLater ? (i == 0 ? "Software\\Microsoft\\Windows\\CurrentVersion\\OneDrive" : // Windows 8.1 only
-                                                                                   "Software\\Microsoft\\Windows\\CurrentVersion\\SkyDrive")
-                                                                            : (i == 0 ? "Software\\Microsoft\\OneDrive" : "Software\\Microsoft\\SkyDrive"), // except Windows 8.1
+                                   i == 0 ? "Software\\Microsoft\\OneDrive" : "Software\\Microsoft\\SkyDrive",
                                    0, KEY_READ, &hKey)) == ERROR_SUCCESS)
         {
             DWORD size = sizeof(path); // size in bytes

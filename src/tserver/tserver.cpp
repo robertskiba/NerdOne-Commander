@@ -48,8 +48,6 @@ DWORD CGlobalDataMessage::StaticIndex = 0;
 BOOL UseMaxMessagesCount = FALSE;
 int MaxMessagesCount = 10000;
 
-BOOL WindowsVistaAndLater = FALSE;
-
 // texts for the About dialog
 WCHAR AboutText1[] = L"Version 2.03";
 
@@ -958,8 +956,6 @@ wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*cmdLine*/, i
 
     TRACE_I("Begin.");
 
-    WindowsVistaAndLater = TServerIsWindowsVersionOrGreater(6, 0, 0);
-
     // to allow a process running under another user to access TServer on Vista
     // (runas), it was necessary to allow opening the process handle; everything is enabled here
     HANDLE hProcess = GetCurrentProcess();
@@ -972,7 +968,6 @@ wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*cmdLine*/, i
     // http://www.vistax64.com/vista-security/72588-openprocess-process_set_information-protected-processes.html#post357171
     // Manik points to the book http://www.amazon.com/gp/product/0470101555?ie=UTF8&tag=protectyourwi-20
     // (Windows Vista Security: Securing Vista Against Malicious Attacks )
-    if (WindowsVistaAndLater)
     {
         TOKEN_PRIVILEGES tp;
         LUID luid;

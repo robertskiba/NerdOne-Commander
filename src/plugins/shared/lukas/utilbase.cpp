@@ -7,8 +7,6 @@
 
 HINSTANCE DLLInstance = NULL; // Handle to the SPL - language-independent resources
 HINSTANCE HLanguage = NULL;   // Handle to the SLG - language-dependent resources
-BOOL WindowsVistaAndLater;    // Windows Vista or later from the NT family (6.0+)
-BOOL WindowsXP64AndLater;     // Windows XP 64, Vista or later (5.2+)
 
 // Open Salamander interface - valid from the InitUtils() call until
 // the plugin terminates
@@ -74,10 +72,6 @@ BOOL InitLCUtils(CSalamanderPluginEntryAbstract* salamander, const char* pluginN
     // Get the Salamander interface
     SG = salamander->GetSalamanderGeneral();
     SalGUI = salamander->GetSalamanderGUI();
-
-    // Determine which OS we are running on
-    WindowsXP64AndLater = SalIsWindowsVersionOrGreater(5, 2, 0);
-    WindowsVistaAndLater = SalIsWindowsVersionOrGreater(6, 0, 0);
 
     MainThreadID = GetCurrentThreadId();
 

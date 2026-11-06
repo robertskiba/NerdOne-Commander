@@ -414,11 +414,6 @@ struct CConfiguration
     BOOL EnableCustomIconOverlays;    // TRUE = icon overlays are used (see ShellIconOverlays)
     char* DisabledCustomIconOverlays; // allocated list of disabled icon overlay handlers (separator is ';', escape - sequence for ';' is ';;')
 
-#ifndef _WIN64
-    // FIXME_X64_WINSCP - this approach is not ideal. Find a better one (split x86 and x64 versions and share data)
-    BOOL AddX86OnlyPlugins; // TRUE = the x86 version of Salamander has not yet been started; on first run add plugins missing in the x64 build
-#endif                      // _WIN64
-
     CConfiguration();
     ~CConfiguration();
 

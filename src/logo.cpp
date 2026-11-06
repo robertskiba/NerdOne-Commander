@@ -450,10 +450,7 @@ CAboutDialog::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
         if (IsAppThemed())
         {
             // without this workaround there's a gray frame around the OK button
-            if (WindowsVistaAndLater)
-                return (BOOL)(UINT_PTR)HGradientBkBrush;
-            else
-                return (BOOL)(UINT_PTR)GetStockObject(NULL_BRUSH); // this still worked correctly on XP
+            return (BOOL)(UINT_PTR)HGradientBkBrush;
         }
         break;
     }

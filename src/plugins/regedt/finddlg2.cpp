@@ -690,18 +690,9 @@ CFindDialog::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         // assign an icon to the window
         HICON findIcon = NULL;
-        HINSTANCE iconsDLL = NULL;
-        if (WindowsVistaAndLater)
-            iconsDLL = LoadLibraryEx("imageres.dll", NULL, LOAD_LIBRARY_AS_DATAFILE);
-        else
-            iconsDLL = LoadLibraryEx("shell32.dll", NULL, LOAD_LIBRARY_AS_DATAFILE);
+        HINSTANCE iconsDLL = LoadLibraryEx("imageres.dll", NULL, LOAD_LIBRARY_AS_DATAFILE);
         if (iconsDLL != NULL)
-        {
-            if (WindowsVistaAndLater)
-                findIcon = LoadIcon(iconsDLL, MAKEINTRESOURCE(8));
-            else
-                findIcon = LoadIcon(iconsDLL, MAKEINTRESOURCE(134));
-        }
+            findIcon = LoadIcon(iconsDLL, MAKEINTRESOURCE(8));
         if (findIcon == NULL)
             findIcon = LoadIcon(DLLInstance, MAKEINTRESOURCE(IDI_FIND));
         SendMessage(HWindow, WM_SETICON, ICON_BIG, (LPARAM)findIcon);

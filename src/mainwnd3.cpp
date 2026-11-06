@@ -433,37 +433,17 @@ public:
 // ****************************************************************************
 // MyShutdownBlockReasonCreate a MyShutdownBlockReasonDestroy
 //
-// Vista+: dynamically obtain functions for setting/clearing shutdown block reasons
+// setting/clearing shutdown block reasons (available since Vista, called directly)
 //
 
 BOOL MyShutdownBlockReasonCreate(HWND hWnd, LPCWSTR pwszReason)
 {
-    typedef BOOL(WINAPI * FT_ShutdownBlockReasonCreate)(HWND hWnd, LPCWSTR pwszReason);
-    static FT_ShutdownBlockReasonCreate shutdownBlockReasonCreate = NULL;
-    if (shutdownBlockReasonCreate == NULL && User32DLL != NULL && WindowsVistaAndLater)
-    {
-        shutdownBlockReasonCreate = (FT_ShutdownBlockReasonCreate)GetProcAddress(User32DLL,
-                                                                                 "ShutdownBlockReasonCreate"); // Min: Vista
-    }
-    if (shutdownBlockReasonCreate != NULL)
-        return shutdownBlockReasonCreate(hWnd, pwszReason);
-    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-    return FALSE;
+    return ShutdownBlockReasonCreate(hWnd, pwszReason);
 }
 
 BOOL MyShutdownBlockReasonDestroy(HWND hWnd)
 {
-    typedef BOOL(WINAPI * FT_ShutdownBlockReasonDestroy)(HWND hWnd);
-    static FT_ShutdownBlockReasonDestroy shutdownBlockReasonDestroy = NULL;
-    if (shutdownBlockReasonDestroy == NULL && User32DLL != NULL && WindowsVistaAndLater)
-    {
-        shutdownBlockReasonDestroy = (FT_ShutdownBlockReasonDestroy)GetProcAddress(User32DLL,
-                                                                                   "ShutdownBlockReasonDestroy"); // Min: Vista
-    }
-    if (shutdownBlockReasonDestroy != NULL)
-        return shutdownBlockReasonDestroy(hWnd);
-    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-    return FALSE;
+    return ShutdownBlockReasonDestroy(hWnd);
 }
 
 //
@@ -1894,8 +1874,7 @@ MENU_TEMPLATE_ITEM AddToSystemMenu[] =
             if (HPToolBar != NULL && HPToolBar->HWindow != NULL)
                 HPToolBar->CreateButtons();
 
-            if (Windows7AndLater)
-                CreateJumpList();
+            CreateJumpList();
 
             // the user could have enabled/disabled Documents
             CDriveBar* copyDrivesListFrom = NULL;
@@ -2818,23 +2797,15 @@ MENU_TEMPLATE_ITEM AddToSystemMenu[] =
             params.HParent = HWindow;
             params.Flags = MSGBOXEX_OK | MSGBOXEX_ICONINFORMATION | MSGBOXEX_SILENT;
             params.Caption = LoadStr(IDS_INFOTITLE);
-            params.Text = LoadStr(WindowsVistaAndLater ? IDS_CONFIGEXPVISTA : IDS_CONFIGEXPUPTOXP);
+            params.Text = LoadStr(IDS_CONFIGEXPVISTA);
             params.CheckBoxText = LoadStr(IDS_CONFIGEXPCLEARKEY);
             params.CheckBoxValue = &clearKeyBeforeImport;
             SalMessageBoxEx(&params);
 
-            if (WindowsVistaAndLater)
+            if (!CreateOurPathInRoamingAPPDATA(defDir))
             {
-                if (!CreateOurPathInRoamingAPPDATA(defDir))
-                {
-                    TRACE_E("CM_EXPORTCONFIG: unexpected situation: unable to get our directory under CSIDL_APPDATA");
-                    return 0;
-                }
-            }
-            else
-            {
-                GetModuleFileName(HInstance, defDir, MAX_PATH);
-                *strrchr(defDir, '\\') = 0;
+                TRACE_E("CM_EXPORTCONFIG: unexpected situation: unable to get our directory under CSIDL_APPDATA");
+                return 0;
             }
             OPENFILENAME ofn;
             memset(&ofn, 0, sizeof(OPENFILENAME));
@@ -5505,23 +5476,20 @@ MENU_TEMPLATE_ITEM AddToSystemMenu[] =
 
     case WM_ENABLE:
     {
-        if (WindowsVistaAndLater)
+        // Windows Vista UAC patch: when starting a file from the panels caused the UAC elevation prompt to appear
+        // and then was closed using Cancel, Salamander would lose focus from the panel.
+        // The main window is disabled at the time messages like WM_ACTIVATE or WM_SETFOCUS arrive, and the focus is received by Microsoft IME-supported popups.
+        BOOL enabled = (BOOL)wParam;
+        if (enabled)
         {
-            // Windows Vista UAC patch: when starting a file from the panels caused the UAC elevation prompt to appear
-            // and then was closed using Cancel, Salamander would lose focus from the panel.
-            // The main window is disabled at the time messages like WM_ACTIVATE or WM_SETFOCUS arrive, and the focus is received by Microsoft IME-supported popups.
-            BOOL enabled = (BOOL)wParam;
-            if (enabled)
+            HWND hFocused = GetFocus();
+            HWND hPanelListbox = NULL;
+            CFilesWindow* activePanel = GetActivePanel();
+            if (activePanel != NULL && !EditMode)
             {
-                HWND hFocused = GetFocus();
-                HWND hPanelListbox = NULL;
-                CFilesWindow* activePanel = GetActivePanel();
-                if (activePanel != NULL && !EditMode)
-                {
-                    hPanelListbox = activePanel->GetListBoxHWND();
-                    if (hFocused == NULL || hFocused != hPanelListbox)
-                        FocusPanel(activePanel);
-                }
+                hPanelListbox = activePanel->GetListBoxHWND();
+                if (hFocused == NULL || hFocused != hPanelListbox)
+                    FocusPanel(activePanel);
             }
         }
         break;
@@ -5963,7 +5931,7 @@ MENU_TEMPLATE_ITEM AddToSystemMenu[] =
                 RightPanel->NextFocusName[0] = 0;
             else
                 RightPanel->DontClearNextFocusName = FALSE;
-            if (Windows7AndLater && IsIconic(HWindow))
+            if (IsIconic(HWindow))
             {
                 SetTimer(HWindow, IDT_POSTENDSUSPMODE, 200, NULL); // hopefully we'll never find out why this timer existed; commented out because it delays directory refresh by 200 ms after operations (e.g. moving a file into a subdirectory, it is visible on a local disk)
             }
@@ -6075,7 +6043,7 @@ MENU_TEMPLATE_ITEM AddToSystemMenu[] =
 
         // see above for "forced shutdown" description; give the user a chance to stop the shutdown manually,
         // if they refuse, they can at least cancel running disk operations and will only lose configuration saving
-        if (!SaveCfgInEndSession && !WaitInEndSession && WindowsVistaAndLater &&
+        if (!SaveCfgInEndSession && !WaitInEndSession &&
             (lParam & ENDSESSION_CRITICAL) == 0)
         {
             if (ProgressDlgArray.RemoveFinishedDlgs() > 0)
@@ -6110,9 +6078,6 @@ MENU_TEMPLATE_ITEM AddToSystemMenu[] =
 
         if (!SaveCfgInEndSession) // configuration should not be saved (handled later)
         {                         // WaitInEndSession or XP "critical shutdown": wait for disk operations to complete (if any are running)
-            if (!WindowsVistaAndLater && ProgressDlgArray.RemoveFinishedDlgs() > 0)
-                ProgressDlgArray.PostCancelToAllDlgs(); // dialogs and workers run in their own threads; there is a chance that they might exit
-
             while (ProgressDlgArray.RemoveFinishedDlgs() > 0)
                 Sleep(200);
             return 0; // let the software close

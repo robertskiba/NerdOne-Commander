@@ -223,8 +223,6 @@ CConfiguration Config; // global configuration of the FTP client
 // array with all open FS (use only from the main thread - unsynchronized)
 TIndirectArray<CPluginFSInterface> FTPConnections(5, 10, dtNoDelete);
 
-BOOL WindowsVistaAndLater = FALSE; // Windows Vista or later from the NT family
-
 // global variables for the FTPCMD_CHANGETGTPANELPATH command
 int TargetPanelPathPanel = PANEL_LEFT;
 char TargetPanelPath[MAX_PATH] = "";
@@ -245,8 +243,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
             MessageBox(NULL, "InitCommonControlsEx failed!", "Error", MB_OK | MB_ICONERROR);
             return FALSE; // DLL cannot be loaded
         }
-
-        WindowsVistaAndLater = SalIsWindowsVersionOrGreater(6, 0, 0);
     }
 
     return TRUE; // DLL can be loaded

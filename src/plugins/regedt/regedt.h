@@ -497,7 +497,6 @@ class CPluginDataInterface : public CPluginDataInterfaceAbstract
 
 extern HINSTANCE DLLInstance; // handle to SPL - language-independent resources
 extern HINSTANCE HLanguage;   // handle to SLG - language-dependent resources
-extern BOOL WindowsVistaAndLater;
 
 char* LoadStr(int resID);
 LPWSTR LoadStrW(int resID);

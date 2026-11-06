@@ -1255,8 +1255,7 @@ void CMainWindow::SetUnescapedHotPath(int index, const char* path)
         // a change occurred, rebuild the Hot Path Bar
         if (HPToolBar != NULL && HPToolBar->HWindow != NULL)
             HPToolBar->CreateButtons();
-        if (Windows7AndLater)
-            CreateJumpList();
+        CreateJumpList();
     }
 }
 

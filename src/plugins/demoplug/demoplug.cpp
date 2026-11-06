@@ -155,8 +155,6 @@ void InitIconOverlays()
     // for 32x32 icons in that case, and we should fetch the actual icon sizes from the system
     // for now we ignore this and enable 48x48 only from XP, where they are normally available
     int iconSizes[3] = {16, 32, 48};
-    if (!SalIsWindowsVersionOrGreater(5, 1, 0)) // not WindowsXPAndLater: not XP or later
-        iconSizes[2] = 32;
 
     HINSTANCE iconDLL = imageResDLL;
     int iconOverlaysCount = 0;

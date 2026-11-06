@@ -1205,7 +1205,7 @@ COperDlgListView::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 ListView_GetSubItemRect(HWindow, LastItem, LastSubItem, LVIR_BOUNDS, &rect);
 
             POINT pt;
-            int width = LastWidth + (WindowsVistaAndLater ? 11 : 7);
+            int width = LastWidth + 11;
             pt.x = rect.left;
             pt.y = rect.top;
             ClientToScreen(HWindow, &pt);
@@ -1218,18 +1218,8 @@ COperDlgListView::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
             RECT monRect;
             SalamanderGeneral->MultiMonGetClipRectByRect(&scrRect, &monRect, NULL);
 
-            if (WindowsVistaAndLater)
-            {
-                if (LastSubItem == 0)
-                    pt.x -= 4;
-            }
-            else
-            {
-                if (LastSubItem == 0)
-                    pt.x--;
-                else
-                    pt.x += 3;
-            }
+            if (LastSubItem == 0)
+                pt.x -= 4;
 
             if (pt.x + width > monRect.right)
                 pt.x = monRect.right - width;

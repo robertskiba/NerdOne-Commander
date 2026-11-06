@@ -223,37 +223,6 @@ void CFilesWindow::FilesAction(CActionType type, CFilesWindow* target, int count
                 count = 0;
         }
 
-#ifndef _WIN64
-        if (Windows64Bit && (type == atMove || type == atDelete))
-        {
-            int oneIndex;
-            if (count == 0)
-            {
-                oneIndex = GetCaretIndex();
-                if (oneIndex == 0 && subDir)
-                    oneIndex = -1;
-            }
-            char redirectedDir[MAX_PATH];
-            if ((count > 0 || oneIndex != -1) &&
-                ContainsWin64RedirectedDir(this, count > 0 ? indexes : &oneIndex,
-                                           count > 0 ? count : 1, redirectedDir, FALSE))
-            {
-                char msg[300 + MAX_PATH];
-                _snprintf_s(msg, _TRUNCATE,
-                            LoadStr(type == atMove ? IDS_ERRMOVESELCONTW64ALIAS : IDS_ERRDELETESELCONTW64ALIAS),
-                            redirectedDir);
-                SalMessageBox(HWindow, msg, LoadStr(IDS_ERRORTITLE), MB_OK | MB_ICONEXCLAMATION);
-
-                if (indexes != NULL)
-                    delete[] (indexes);
-                FilesActionInProgress = FALSE;
-                EndStopRefresh();
-                EndSuspendMode(); // the snooper starts again now
-                return;
-            }
-        }
-#endif // _WIN64
-
         //---  build the target path for copy/move
         char path[2 * MAX_PATH + 200]; // +200 is a reserve (Windows can create paths longer than MAX_PATH)
         target->GetGeneralPath(path, 2 * MAX_PATH + 200);
@@ -904,7 +873,7 @@ void CFilesWindow::FilesAction(CActionType type, CFilesWindow* target, int count
         {
             if (Configuration.CnfrmFileDirDel && recycle != 1)
             {                                                                                                           // ask only if requested and if we don't use the SHFileOperation API for deletion
-                HICON hIcon = (HICON)HANDLES(LoadImage(Shell32DLL, MAKEINTRESOURCE(WindowsVistaAndLater ? 16777 : 161), // delete icon
+                HICON hIcon = (HICON)HANDLES(LoadImage(Shell32DLL, MAKEINTRESOURCE(16777), // delete icon
                                                        IMAGE_ICON, 32, 32, IconLRFlags));
                 int myRes = CMessageBox(HWindow, MSGBOXEX_YESNO | MSGBOXEX_ESCAPEENABLED | MSGBOXEX_SILENT,
                                         LoadStr(IDS_CONFIRM_DELETE_TITLE), &str, NULL,

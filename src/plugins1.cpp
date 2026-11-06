@@ -2143,19 +2143,6 @@ BOOL CPluginData::InitDLL(HWND parent, BOOL quiet, BOOL waitCursor, BOOL showUns
 
     char bufText[MAX_PATH + 200];
 
-#ifdef _WIN64 // FIXME_X64_WINSCP - this probably needs a different solution... (ignoring missing WinSCP in the x64 version of Salamander)
-    const char* pluginNameEN;
-    if (IsPluginUnsupportedOnX64(DLLName, &pluginNameEN))
-    {
-        if (showUnsupOnX64) // inform the user this plugin is available only in the 32-bit version (x86)
-        {
-            sprintf(bufText, LoadStr(IDS_PLUGINISX86ONLY), Name == NULL || Name[0] == 0 ? pluginNameEN : Name);
-            SalMessageBox(parent, bufText, LoadStr(IDS_INFOTITLE), MB_OK | MB_ICONINFORMATION);
-        }
-        return FALSE;
-    }
-#endif // _WIN64
-
     if (DLL == NULL && IsGood())
     {
         BOOL refreshUNCRootPaths = FALSE;

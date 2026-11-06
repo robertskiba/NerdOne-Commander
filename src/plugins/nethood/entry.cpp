@@ -58,44 +58,13 @@ DllMain(
         // _winminor and _osplatform (GetOsSpecificData uses them), so for the purposes of Nethood
         // I will obtain them in a completely primitive way, see the following code
 
-        // Windows Versions supported by Open Salamander
-        //
-        // Name                        dwPlatformId  dwMajorVersion  dwMinorVersion  dwBuildNumber
-        //----------------------------------------------------------------------------------------
-        // Windows 2000                2             5               0
-        // Windows XP                  2             5               1
-        // Windows Vista               2             6               0
-        // Windows 7                   2             6               1
-        // Windows 8                   2             6               2
-        // Windows 8.1                 2             6               3
-        _winmajor = 5;
-        _winminor = 0;
+        // NerdOne Commander requires Windows 10 or later; the OS-specific data tables
+        // (GetOsSpecificData) only distinguish versions up to 6.3 (Windows 8.1), so on
+        // every supported system the best match is 6.3 (this is what the former
+        // version detection returned on Windows 10/11 too)
+        _winmajor = 6;
+        _winminor = 3;
         _osplatform = 2; // VER_PLATFORM_WIN32_NT
-        if (SalIsWindowsVersionOrGreater(6, 3, 0))
-        {
-            _winmajor = 6;
-            _winminor = 3;
-        }
-        else if (SalIsWindowsVersionOrGreater(6, 2, 0))
-        {
-            _winmajor = 6;
-            _winminor = 2;
-        }
-        else if (SalIsWindowsVersionOrGreater(6, 1, 0))
-        {
-            _winmajor = 6;
-            _winminor = 1;
-        }
-        else if (SalIsWindowsVersionOrGreater(6, 0, 0))
-        {
-            _winmajor = 6;
-            _winminor = 0;
-        }
-        else if (SalIsWindowsVersionOrGreater(5, 1, 0))
-        {
-            _winmajor = 5;
-            _winminor = 1;
-        }
 #endif
     }
 

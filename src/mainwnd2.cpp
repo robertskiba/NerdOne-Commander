@@ -297,13 +297,8 @@ const char* CONFIG_CURRRENTTIPINDEX = "Current Tip Index";
 const char* CONFIG_SEARCHFILECONTENT = "Search File Content";
 const char* CONFIG_FINDOPTIONS_REG = "Find Options";
 const char* CONFIG_FINDIGNORE_REG = "Find Ignore";
-#ifdef _WIN64
 const char* CONFIG_LASTPLUGINVER = "Plugins.ver Version (x64)";
 const char* CONFIG_LASTPLUGINVER_OP = "Plugins.ver Version (x86)";
-#else  // _WIN64
-const char* CONFIG_LASTPLUGINVER = "Plugins.ver Version (x86)";
-const char* CONFIG_LASTPLUGINVER_OP = "Plugins.ver Version (x64)";
-#endif // _WIN64
 const char* CONFIG_LANGUAGE_REG = "Language";
 const char* CONFIG_SHOWSPLASHSCREEN_REG = "Show Splash Screen";
 const char* CONFIG_CONVERSIONTABLE_REG = "Conversion Table";
@@ -1659,9 +1654,8 @@ void CMainWindow::SaveConfig(HWND parent)
                          &Configuration.UseSalOpen, sizeof(DWORD));
                 SetValue(actKey, CONFIG_NETWAREFASTDIRMOVE_REG, REG_DWORD,
                          &Configuration.NetwareFastDirMove, sizeof(DWORD));
-                if (Windows7AndLater)
-                    SetValue(actKey, CONFIG_ASYNCCOPYALG_REG, REG_DWORD,
-                             &Configuration.UseAsyncCopyAlg, sizeof(DWORD));
+                SetValue(actKey, CONFIG_ASYNCCOPYALG_REG, REG_DWORD,
+                         &Configuration.UseAsyncCopyAlg, sizeof(DWORD));
                 SetValue(actKey, CONFIG_RELOAD_ENV_VARS_REG, REG_DWORD,
                          &Configuration.ReloadEnvVariables, sizeof(DWORD));
                 SetValue(actKey, CONFIG_QUICKRENAME_SELALL_REG, REG_DWORD,
@@ -1743,11 +1737,6 @@ void CMainWindow::SaveConfig(HWND parent)
                          &Configuration.UseEditNewFileDefault, sizeof(DWORD));
                 SetValue(actKey, CONFIG_EDITNEWFILE_DEFAULT_REG, REG_SZ,
                          Configuration.EditNewFileDefault, -1);
-
-#ifndef _WIN64 // FIXME_X64_WINSCP
-                SetValue(actKey, "Add x86-Only Plugins", REG_DWORD,
-                         &Configuration.AddX86OnlyPlugins, sizeof(DWORD));
-#endif // _WIN64
 
                 HKEY actSubKey;
                 if (CreateKey(actKey, SALAMANDER_CONFIRMATION_REG, actSubKey))
@@ -3187,9 +3176,8 @@ BOOL CMainWindow::LoadConfig(BOOL importingOldConfig, const CCommandLineParams* 
             }
             GetValue(actKey, CONFIG_NETWAREFASTDIRMOVE_REG, REG_DWORD,
                      &Configuration.NetwareFastDirMove, sizeof(DWORD));
-            if (Windows7AndLater)
-                GetValue(actKey, CONFIG_ASYNCCOPYALG_REG, REG_DWORD,
-                         &Configuration.UseAsyncCopyAlg, sizeof(DWORD));
+            GetValue(actKey, CONFIG_ASYNCCOPYALG_REG, REG_DWORD,
+                     &Configuration.UseAsyncCopyAlg, sizeof(DWORD));
             GetValue(actKey, CONFIG_RELOAD_ENV_VARS_REG, REG_DWORD,
                      &Configuration.ReloadEnvVariables, sizeof(DWORD));
             GetValue(actKey, CONFIG_SHIFTFORHOTPATHS_REG, REG_DWORD,
@@ -3274,14 +3262,6 @@ BOOL CMainWindow::LoadConfig(BOOL importingOldConfig, const CCommandLineParams* 
                      &Configuration.UseEditNewFileDefault, sizeof(DWORD));
             GetValue(actKey, CONFIG_EDITNEWFILE_DEFAULT_REG, REG_SZ,
                      Configuration.EditNewFileDefault, MAX_PATH);
-
-#ifndef _WIN64 // FIXME_X64_WINSCP
-            if (!GetValue(actKey, "Add x86-Only Plugins", REG_DWORD,
-                          &Configuration.AddX86OnlyPlugins, sizeof(DWORD)))
-            {
-                Configuration.AddX86OnlyPlugins = TRUE;
-            }
-#endif // _WIN64
 
             HKEY actSubKey;
             if (OpenKey(actKey, SALAMANDER_CONFIRMATION_REG, actSubKey))

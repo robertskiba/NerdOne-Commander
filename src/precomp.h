@@ -3,15 +3,17 @@
 
 #pragma once
 
+#ifndef _WIN64
+#error NerdOne Commander supports x64 only
+#endif
+
 //#define WIN32_LEAN_AND_MEAN // exclude rarely-used stuff from Windows headers
 
 // The SDK suppresses some warnings such as C4244, so we wrap it with PUSH/POP
 #pragma warning(push)
 
-#ifdef _WIN64
 #ifdef _DEBUG
 #define X64_STRESS_TEST
-#endif
 #endif
 
 #include <windows.h>

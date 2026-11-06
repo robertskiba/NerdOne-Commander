@@ -21,11 +21,7 @@ public:
         IProcessDebugManager* pProcDbgMgr;
         IDebugDocumentHelper* pDbgDocHelper;
         IDebugApplication* pDbgApp;
-#ifdef _WIN64
         DWORDLONG dwSourceContext;
-#else
-        DWORD dwSourceContext;
-#endif
         DWORD dwAppCookie;
     };
 

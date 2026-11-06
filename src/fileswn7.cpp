@@ -724,7 +724,7 @@ void CFilesWindow::UnpackZIPArchive(CFilesWindow* target, BOOL deleteOp, const c
     else // Delete icon
     {
         //---  ask whether the user is sure they want to delete
-        HICON hIcon = (HICON)HANDLES(LoadImage(Shell32DLL, MAKEINTRESOURCE(WindowsVistaAndLater ? 16777 : 161), // delete icon
+        HICON hIcon = (HICON)HANDLES(LoadImage(Shell32DLL, MAKEINTRESOURCE(16777), // delete icon
                                                IMAGE_ICON, 32, 32, IconLRFlags));
         if (!Configuration.CnfrmFileDirDel ||
             CMessageBox(HWindow, MSGBOXEX_YESNO | MSGBOXEX_ESCAPEENABLED | MSGBOXEX_SILENT,

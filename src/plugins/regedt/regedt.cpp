@@ -10,7 +10,6 @@
 
 HINSTANCE DLLInstance = NULL; // handle to SPL - language-independent resources
 HINSTANCE HLanguage = NULL;   // handle to SLG - language-dependent resources
-BOOL WindowsVistaAndLater;
 
 // plug-in interface object whose methods Salamander calls
 CPluginInterface PluginInterface;
@@ -235,9 +234,6 @@ CPluginInterfaceAbstract* WINAPI SalamanderPluginEntry(CSalamanderPluginEntryAbs
 
     // set the help file name
     SG->SetHelpFileName("regedt.chm");
-
-    // detect which OS we run on
-    WindowsVistaAndLater = SalIsWindowsVersionOrGreater(6, 0, 0);
 
     if (!InitDialogs())
         return NULL;

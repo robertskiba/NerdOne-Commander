@@ -2843,12 +2843,7 @@ UINT GetMouseWheelScrollChars()
     if (GotMouseWheelScrollChars)
         return uCachedScrollChars;
 
-    if (WindowsVistaAndLater)
-    {
-        if (!SystemParametersInfo(SPI_GETWHEELSCROLLCHARS, 0, &uCachedScrollChars, 0))
-            uCachedScrollChars = DEFAULT_CHARS_TO_SCROLL;
-    }
-    else
+    if (!SystemParametersInfo(SPI_GETWHEELSCROLLCHARS, 0, &uCachedScrollChars, 0))
         uCachedScrollChars = DEFAULT_CHARS_TO_SCROLL;
     GotMouseWheelScrollChars = TRUE;
     return uCachedScrollChars;
@@ -3682,36 +3677,9 @@ MENU_TEMPLATE_ITEM CopyMoveBrowseMenu[] =
     return popup.Track(flags, r.right, r.top, hDialog, &r);
 }
 
-DWORD OnKeyDownHandleSelectAll(DWORD keyCode, HWND hDialog, int editID)
+DWORD OnKeyDownHandleSelectAll(DWORD /*keyCode*/, HWND /*hDialog*/, int /*editID*/)
 {
-    // since Windows Vista, SelectAll works properly by default, so we leave Select All enabled there.
-    if (WindowsVistaAndLater)
-        return FALSE;
-
-    BOOL controlPressed = (GetKeyState(VK_CONTROL) & 0x8000) != 0;
-    BOOL altPressed = (GetKeyState(VK_MENU) & 0x8000) != 0;
-    BOOL shiftPressed = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
-
-    if (controlPressed && !shiftPressed && !altPressed)
-    {
-        if (keyCode == 'A')
-        {
-            // select all
-            HWND hChild = GetDlgItem(hDialog, editID);
-            if (hChild != NULL)
-            {
-                char className[30];
-                GetClassName(hChild, className, 29);
-                className[29] = 0;
-                BOOL combo = (stricmp(className, "combobox") == 0);
-                if (combo)
-                    SendMessage(hChild, CB_SETEDITSEL, 0, MAKELPARAM(0, -1));
-                else
-                    SendMessage(hChild, EM_SETSEL, 0, -1);
-                return TRUE;
-            }
-        }
-    }
+    // since Windows Vista, SelectAll works properly by default, so we leave Select All to the system.
     return FALSE;
 }
 

@@ -2223,16 +2223,6 @@ BOOL CFilesWindow::SetUnescapedHotPathToEmptyPos()
     return FALSE;
 }
 
-#ifndef _WIN64
-
-BOOL AreNextPathComponents(const char* relPath, const char* nextComp)
-{
-    int len = (int)strlen(nextComp);
-    return StrNICmp(relPath, nextComp, len) == 0 && (relPath[len] == '\\' || relPath[len] == 0);
-}
-
-#endif // _WIN64
-
 void CFilesWindow::OpenActiveFolder()
 {
     CALL_STACK_MESSAGE1("CFilesWindow::OpenActiveFolder()");
@@ -2240,61 +2230,6 @@ void CFilesWindow::OpenActiveFolder()
     {
         UserWorkedOnThisPath = TRUE;
         const char* path = GetPath();
-
-#ifndef _WIN64
-        // replace "C:\\Windows\\sysnative\\*" with "C:\\Windows\\system32\\*" on 64-bit systems
-        // the 64-bit Explorer process knows nothing about "sysnative", so minimize user disruption,
-        // also replace "C:\\Windows\\system32\\*" with "C:\\Windows\\SysWOW64\\*"
-        // (except for a group of directories excluded from the redirector that thus point back to System32)
-        char dirName[MAX_PATH];
-        dirName[0] = 0;
-        if (Windows64Bit && WindowsDirectory[0] != 0)
-        {
-            BOOL done = FALSE;
-            lstrcpyn(dirName, WindowsDirectory, MAX_PATH);
-            if (SalPathAppend(dirName, "Sysnative", MAX_PATH))
-            {
-                int len = (int)strlen(dirName);
-                if (StrNICmp(path, dirName, len) == 0 && (path[len] == '\\' || path[len] == 0))
-                {
-                    lstrcpyn(dirName, WindowsDirectory, MAX_PATH);
-                    SalPathAppend(dirName, "System32", MAX_PATH); // if Sysnative fit, System32 will fit as well
-                    memmove(dirName + strlen(dirName), path + len, strlen(path + len) + 1);
-                    path = dirName;
-                    done = TRUE;
-                }
-            }
-            if (!done)
-            {
-                lstrcpyn(dirName, WindowsDirectory, MAX_PATH);
-                if (SalPathAppend(dirName, "System32", MAX_PATH))
-                {
-                    int len = (int)strlen(dirName);
-                    if (StrNICmp(path, dirName, len) == 0 && (path[len] == '\\' || path[len] == 0))
-                    {
-                        // check whether it is a directory excluded from the redirector
-                        if (path[len] == '\\' &&
-                            (AreNextPathComponents(path + len + 1, "catroot") ||
-                             AreNextPathComponents(path + len + 1, "catroot2") ||
-                             Windows7AndLater && AreNextPathComponents(path + len + 1, "DriverStore") ||
-                             AreNextPathComponents(path + len + 1, "drivers\\etc") ||
-                             AreNextPathComponents(path + len + 1, "LogFiles") ||
-                             AreNextPathComponents(path + len + 1, "spool")))
-                        {
-                            done = TRUE;
-                        }
-                        if (!done)
-                        {
-                            lstrcpyn(dirName, WindowsDirectory, MAX_PATH);
-                            SalPathAppend(dirName, "SysWOW64", MAX_PATH); // if System32 fit, SysWOW64 will fit as well
-                            memmove(dirName + strlen(dirName), path + len, strlen(path + len) + 1);
-                            path = dirName;
-                        }
-                    }
-                }
-            }
-        }
-#endif // _WIN64
 
         char itemName[MAX_PATH];
         itemName[0] = 0;

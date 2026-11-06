@@ -4497,7 +4497,7 @@ BOOL DoCopyFile(COperation* op, HWND hProgressDlg, void* buffer,
     // - the asynchronous algorithm makes sense only over the network + when source/target is fast or network-based
     // - with the old algorithm, copying on Win7 over the network is easily 2x-3x slower for downloads,
     //   almost 2x slower for uploads, and about 30% slower for network-to-network copies
-    BOOL useAsyncAlg = Windows7AndLater && Configuration.UseAsyncCopyAlg &&
+    BOOL useAsyncAlg = Configuration.UseAsyncCopyAlg &&
                        op->FileSize.Value > 0 && // empty files are copied synchronously (no data)
                        ((op->OpFlags & OPFL_SRCPATH_IS_NET) && ((op->OpFlags & OPFL_TGTPATH_IS_NET) ||
                                                                 (op->OpFlags & OPFL_TGTPATH_IS_FAST)) ||

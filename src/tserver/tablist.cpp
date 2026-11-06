@@ -290,19 +290,9 @@ LRESULT CListView::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
             ListView_GetSubItemRect(HWindow, LastItem, LastSubItem, LVIR_BOUNDS, &rect);
 
             POINT pt;
-            int width;
-            if (WindowsVistaAndLater)
-            {
-                width = LastWidth + 11;
-                pt.x = rect.left;
-                pt.y = rect.top;
-            }
-            else
-            {
-                width = LastWidth + 7;
-                pt.x = rect.left + 3;
-                pt.y = rect.top - 1;
-            }
+            int width = LastWidth + 11;
+            pt.x = rect.left;
+            pt.y = rect.top;
             ClientToScreen(HWindow, &pt);
 
             int cx = GetSystemMetrics(SM_CXFULLSCREEN);
@@ -615,9 +605,7 @@ CTabList::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
                                    HInstance,
                                    0);
 
-        DWORD exStyle = LVS_EX_FULLROWSELECT;
-        if (WindowsVistaAndLater)
-            exStyle |= LVS_EX_DOUBLEBUFFER;
+        DWORD exStyle = LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER;
         ListView_SetExtendedListViewStyleEx(HListView, exStyle, exStyle);
 
         ListView.TabList = this;

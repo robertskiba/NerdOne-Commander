@@ -61,7 +61,7 @@ CCallStack MainThreadStack; // ensure the call-stack object is created before co
 // PreventSetUnhandledExceptionFilter
 //
 
-#if defined _M_X64 || defined _M_IX86
+#ifdef _M_X64
 LPTOP_LEVEL_EXCEPTION_FILTER WINAPI
 MyDummySetUnhandledExceptionFilter(
     LPTOP_LEVEL_EXCEPTION_FILTER lpTopLevelExceptionFilter)
@@ -69,7 +69,7 @@ MyDummySetUnhandledExceptionFilter(
     return NULL;
 }
 #else
-#error "This code works only for x86 and x64!"
+#error "This code works only for x64!"
 #endif
 
 BOOL PreventSetUnhandledExceptionFilterAux()
@@ -82,23 +82,11 @@ BOOL PreventSetUnhandledExceptionFilterAux()
         return FALSE;
 
     DWORD dwOldProtect = 0;
-    SIZE_T jmpSize = 5;
-#ifdef _M_X64
-    jmpSize = 13;
-#endif
+    SIZE_T jmpSize = 13;
     BOOL bProt = VirtualProtect(pOrgEntry, jmpSize,
                                 PAGE_EXECUTE_READWRITE, &dwOldProtect);
     BYTE newJump[20];
     void* pNewFunc = &MyDummySetUnhandledExceptionFilter;
-#ifdef _M_IX86
-    DWORD dwOrgEntryAddr = (DWORD)pOrgEntry;
-    dwOrgEntryAddr += jmpSize; // add 5 for 5 op-codes for jmp rel32
-    DWORD dwNewEntryAddr = (DWORD)pNewFunc;
-    DWORD dwRelativeAddr = dwNewEntryAddr - dwOrgEntryAddr;
-    // JMP rel32: Jump near, relative, displacement relative to next instruction.
-    newJump[0] = 0xE9; // JMP rel32
-    memcpy(&newJump[1], &dwRelativeAddr, sizeof(pNewFunc));
-#elif _M_X64
     // We must use R10 or R11 because these are "scratch" registers
     // that do not need to be preserved across function calls.
     // For more information, see: Register Usage for x64 64-Bit
@@ -111,7 +99,6 @@ BOOL PreventSetUnhandledExceptionFilterAux()
     newJump[10] = 0x41; // JMP R11, ...
     newJump[11] = 0xFF; // ...
     newJump[12] = 0xE3; // ...
-#endif
     SIZE_T bytesWritten;
     BOOL bRet = WriteProcessMemory(GetCurrentProcess(),
                                    pOrgEntry, newJump, jmpSize, &bytesWritten);

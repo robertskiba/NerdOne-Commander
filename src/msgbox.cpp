@@ -895,9 +895,7 @@ CMessageBox::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
         GetClientRect(HWindow, &clientR);
 
         // arrange the buttons
-        int x = (clientR.right - totalBtnWidth) / 2;
-        if (WindowsVistaAndLater)
-            x = clientR.right - totalBtnWidth - btnBottomMargin;
+        int x = clientR.right - totalBtnWidth - btnBottomMargin;
         BackgroundSeparator = btnY - btnBottomMargin + 1;
         for (i = 0; i < btnCount; i++)
         {
@@ -935,7 +933,7 @@ CMessageBox::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 #define BCM_FIRST 0x1600 // Button control messages
 #define BCM_SETSHIELD (BCM_FIRST + 0x000C)
 
-        if (WindowsVistaAndLater && (flagsEx & MSGBOXEX_SHIELDONDEFBTN))
+        if (flagsEx & MSGBOXEX_SHIELDONDEFBTN)
         {
             SendMessage(GetDlgItem(HWindow, btnID[defIndex]), BCM_SETSHIELD, 0, TRUE);
         }
@@ -1004,46 +1002,36 @@ CMessageBox::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     case WM_ERASEBKGND:
     {
-        if (WindowsVistaAndLater)
-        {
-            HDC hDC = (HDC)wParam;
-            RECT r;
-            GetClientRect(HWindow, &r);
-            RECT rOrig = r;
-            int ySeparator = BackgroundSeparator;
-            r.bottom = ySeparator;
-            FillRect(hDC, &r, (HBRUSH)(COLOR_WINDOW + 1));
-            r = rOrig;
-            r.top = ySeparator;
-            r.bottom = r.top + 1;
-            FillRect(hDC, &r, (HBRUSH)(COLOR_3DLIGHT + 1));
-            r = rOrig;
-            r.top = ySeparator + 1;
-            FillRect(hDC, &r, (HBRUSH)(COLOR_BTNFACE + 1));
-            return TRUE;
-        }
-        else
-            break;
+        HDC hDC = (HDC)wParam;
+        RECT r;
+        GetClientRect(HWindow, &r);
+        RECT rOrig = r;
+        int ySeparator = BackgroundSeparator;
+        r.bottom = ySeparator;
+        FillRect(hDC, &r, (HBRUSH)(COLOR_WINDOW + 1));
+        r = rOrig;
+        r.top = ySeparator;
+        r.bottom = r.top + 1;
+        FillRect(hDC, &r, (HBRUSH)(COLOR_3DLIGHT + 1));
+        r = rOrig;
+        r.top = ySeparator + 1;
+        FillRect(hDC, &r, (HBRUSH)(COLOR_BTNFACE + 1));
+        return TRUE;
     }
 
     case WM_CTLCOLORSTATIC:
     {
-        if (WindowsVistaAndLater)
+        HDC hdcStatic = (HDC)wParam;
+        HWND hwndStatic = (HWND)lParam;
+        int resID = GetWindowLong(hwndStatic, GWL_ID);
+        if (resID == IDI_MSGBOX_ICON || resID == IDS_MSGBOX_TEXT || resID == IDS_MSGBOX_URL)
         {
-            HDC hdcStatic = (HDC)wParam;
-            HWND hwndStatic = (HWND)lParam;
-            int resID = GetWindowLong(hwndStatic, GWL_ID);
-            if (resID == IDI_MSGBOX_ICON || resID == IDS_MSGBOX_TEXT || resID == IDS_MSGBOX_URL)
-            {
-                COLORREF textClr = GetSysColor(COLOR_WINDOWTEXT);
-                SetTextColor(hdcStatic, textClr);
-                SetBkColor(hdcStatic, GetSysColor(COLOR_WINDOW));
-                return (INT_PTR)(HBRUSH)(COLOR_WINDOW + 1);
-            }
-            break;
+            COLORREF textClr = GetSysColor(COLOR_WINDOWTEXT);
+            SetTextColor(hdcStatic, textClr);
+            SetBkColor(hdcStatic, GetSysColor(COLOR_WINDOW));
+            return (INT_PTR)(HBRUSH)(COLOR_WINDOW + 1);
         }
-        else
-            break;
+        break;
     }
 
     case WM_HELP:

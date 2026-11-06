@@ -310,16 +310,11 @@ int GetCmdLineLimit()
 #pragma message(__FILE__ " ERROR: SALCMDLINE_MAXLEN != 8192. SALCMDLINE_MAXLEN and GetCmdLineLimit() must contain the same maximal value!")
 #endif
 
-    if (WindowsXP64AndLater) // XP64 + Vista + Win7 + ...
-    {
-        char cmd[MAX_PATH];
-        if (!GetEnvironmentVariable("COMSPEC", cmd, MAX_PATH))
-            cmd[0] = 0;
-        AddDoubleQuotesIfNeeded(cmd, MAX_PATH); // CreateProcess expects names with spaces quoted (otherwise it tries various variants; see help)
-        return 8191 - lstrlen(cmd) - 6;         // 6 = strlen(" /K ") + 2 (two quotation marks around the command itself)
-    }
-    else
-        return 8192; // XP
+    char cmd[MAX_PATH];
+    if (!GetEnvironmentVariable("COMSPEC", cmd, MAX_PATH))
+        cmd[0] = 0;
+    AddDoubleQuotesIfNeeded(cmd, MAX_PATH); // CreateProcess expects names with spaces quoted (otherwise it tries various variants; see help)
+    return 8191 - lstrlen(cmd) - 6;         // 6 = strlen(" /K ") + 2 (two quotation marks around the command itself)
 }
 
 //
@@ -743,19 +738,7 @@ CEditLine::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
             }
         }
 
-        if (controlPressed && !shiftPressed && !altPressed)
-        {
-            // starting with Windows Vista, SelectAll works natively, so we leave it to them
-            if (!WindowsVistaAndLater)
-            {
-                if (wParam == 'A')
-                {
-                    SendMessage(HWindow, EM_SETSEL, 0, -1);
-                    SkipCharacter = TRUE; // prevent a beep
-                    return TRUE;
-                }
-            }
-        }
+        // Ctrl+A (SelectAll) works natively since Windows Vista, so we leave it to the edit control
 
         /*
       if (shiftPressed && controlPressed && !altPressed)
@@ -1864,15 +1847,12 @@ CEditWindow::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
         LineTo(hDC, cr.right - 2, cr.bottom - 2);
         LineTo(hDC, cr.left, cr.bottom - 2);
 
-        if (WindowsVistaAndLater)
-        {
-            // Vista finally fixed combo box flicker during resizing,
-            // so we must manually erase the area between the child windows and the
-            // combo box border; otherwise garbage remains there
-            (HPEN) SelectObject(hDC, WndPen);
-            Rectangle(hDC, cr.left + EL_XBORDER - 1, cr.top + 4 - 1,
-                      cr.right - GetSystemMetrics(SM_CXVSCROLL) - 1, cr.bottom - 4 + 1);
-        }
+        // Vista finally fixed combo box flicker during resizing,
+        // so we must manually erase the area between the child windows and the
+        // combo box border; otherwise garbage remains there
+        (HPEN) SelectObject(hDC, WndPen);
+        Rectangle(hDC, cr.left + EL_XBORDER - 1, cr.top + 4 - 1,
+                  cr.right - GetSystemMetrics(SM_CXVSCROLL) - 1, cr.bottom - 4 + 1);
 
         // if a visual style is active, do not draw the button ourselves
         if (IsAppThemed())

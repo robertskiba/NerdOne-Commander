@@ -168,8 +168,6 @@ void InitIconOverlays()
     // would not exist in that case; additionally, the actual icon sizes should be obtained from the system
     // for now, this is ignored and 48x48 is enabled only on XP, where these icons are commonly available
     int iconSizes[3] = {16, 32, 48};
-    if (!SalIsWindowsVersionOrGreater(5, 1, 0)) // not Windows XP or later
-        iconSizes[2] = 32;
 
     HICON iconOverlays[3];
     for (int i = 0; i < 3; i++)

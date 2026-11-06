@@ -29,8 +29,6 @@ DWORD UpdateCrc32(const void* buffer, DWORD count, DWORD crcVal);
 
 void GetFixedLogFont(LOGFONT* lf);
 
-extern BOOL Windows7AndLater;
-
 // ****************************************************************************
 // SalIsWindowsVersionOrGreater
 //

@@ -23,8 +23,6 @@ extern WCHAR AboutText2[]; // in the About dialog
 extern BOOL UseMaxMessagesCount;
 extern int MaxMessagesCount;
 
-extern BOOL WindowsVistaAndLater;
-
 // posted to the main window if the connecting thread ends with an error
 #define WM_USER_CT_TERMINATED WM_USER + 100 // [0, 0]
 // releases OpenConnectionMutex -> allows communication between client and server
@@ -93,22 +91,6 @@ extern HANDLE ConnectingThread;
 
 // if this variable is FALSE, the program cannot be controlled through the icon
 extern BOOL IconControlEnable;
-
-inline BOOL TServerIsWindowsVersionOrGreater(WORD wMajorVersion, WORD wMinorVersion, WORD wServicePackMajor)
-{
-    OSVERSIONINFOEXW osvi;
-    DWORDLONG const dwlConditionMask = VerSetConditionMask(VerSetConditionMask(VerSetConditionMask(0,
-                                                                                                   VER_MAJORVERSION, VER_GREATER_EQUAL),
-                                                                               VER_MINORVERSION, VER_GREATER_EQUAL),
-                                                           VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL);
-
-    SecureZeroMemory(&osvi, sizeof(osvi)); // replacement for memset (does not require RTL)
-    osvi.dwOSVersionInfoSize = sizeof(osvi);
-    osvi.dwMajorVersion = wMajorVersion;
-    osvi.dwMinorVersion = wMinorVersion;
-    osvi.wServicePackMajor = wServicePackMajor;
-    return VerifyVersionInfoW(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_SERVICEPACKMAJOR, dwlConditionMask) != FALSE;
-}
 
 inline BOOL IsErrorMsg(C__MessageType type) { return type == __mtError || type == __mtErrorW; }
 

@@ -131,8 +131,7 @@ int StrICpy(char* dest, const char* src)
 //
 //*****************************************************************************
 
-#ifdef _WIN64
-// Even in VC11, MS did not provide x64 ASM versions of the string operations, so for now we stay with C++.
+// x64 has no inline assembler, so the string operations are implemented in C++.
 
 // original function
 int StrICmp(const char* s1, const char* s2)
@@ -147,56 +146,6 @@ int StrICmp(const char* s1, const char* s2)
             return 0; // ==
     }
 }
-
-#else  // _WIN64
-
-int StrICmp(const char* s1, const char* s2)
-{
-    const BYTE* table = LowerCase;
-    __asm {
-        // load up arguments
-    mov     esi,[s2] // esi = s2
-    mov     edi,[s1] // edi = s1
-    mov     edx,table // edx = LowerCase
-
-    mov     eax,255 // enter the loop
-    xor     ebx,ebx
-
-    align   4
-
-        // compare
-chk_null:
-    or      al,al // note that if al == 0, then eax == 0
-    jz      short done
-
-    mov     al,[esi] // al = *s2
-    inc     esi
-    mov     bl,[edi] // bl = *s1
-    inc     edi
-
-    cmp     al,bl // first try case-sensitive comparison
-    je      short chk_null // match
-
-    mov     al,[edx + eax] // convert *s2 char to lower case
-    mov     bl,[edx + ebx] // convert *s1 char to lower case
-
-    cmp     bl,al
-    je      chk_null
-                         // s1 < s2       s1 > s2
-    sbb     eax,eax // AL=-1, CY=1   AL=0, CY=0
-    sbb     eax,-1        // AL=-1         AL=1
-
-done:
-
-    }
-
-    // the return value is in eax to avoid a compiler warning
-    // for functions without a return value, use the following hack
-    BOOL retVal;
-    __asm {mov retVal, eax}
-    return retVal;
-}
-#endif // _WIN64
 
 //
 //*****************************************************************************
@@ -217,9 +166,6 @@ int StrNICmp(const char *s1, const char *s2, int n)
 }
 */
 
-#ifdef _WIN64
-// Even in VC11, MS did not provide x64 ASM versions of the string operations, so for now we stay with C++.
-
 // fixed version
 int StrNICmp(const char* s1, const char* s2, int n)
 {
@@ -235,78 +181,9 @@ int StrNICmp(const char* s1, const char* s2, int n)
     return 0;
 }
 
-#else // _WIN64
-
-int StrNICmp(const char* s1, const char* s2, int n)
-{
-    const BYTE* table = LowerCase;
-    __asm {
-        // load up arguments
-    mov     ecx,[n] // ecx = byte count
-    or      ecx,ecx        
-    jz      toend // if count = 0, we are done
-                           
-    mov     esi,s1 // esi = s1
-    mov     edi,s2 // edi = s2
-    mov     edx,table // edx = LowerCase
-                           
-    xor     eax,eax        
-    xor     ebx,ebx        
-                           
-    align   4              
-                           
-lupe:                      
-    mov     al,[esi] // al = *s1
-                           
-    or      eax,eax // check whether *s1 is null
-                           
-    mov     bl,[edi] // bl = *s2
-                           
-    jz      short eject // jump if *s1 is null
-
-    or      ebx,ebx // see if *s2 is null
-    jz      short eject // jump if *s2 is null
-
-    inc     esi
-    inc     edi
-
-    mov     al,[edx + eax] // convert *s1 char to lower case
-    mov     bl,[edx + ebx] // convert *s2 char to lower case
-
-    cmp     eax,ebx // now equal?
-    jne     short differ
-
-    dec     ecx
-    jnz     short lupe
-
-eject:
-    xor     ecx,ecx
-    cmp     eax,ebx
-    je      short toend
-
-differ:
-    mov     ecx,-1 // return -1 if s1 < s2
-    jb      short toend
-
-    neg     ecx // return 1
-
-toend:
-    mov     eax,ecx // move return value to eax
-    }
-    // the return value is in eax to avoid a compiler warning
-    // for functions without a return value, use the following hack
-    BOOL retVal;
-    __asm {mov retVal, eax}
-    return retVal;
-}
-
-#endif // _WIN64
-
 //
 //*****************************************************************************
 
-#ifdef _WIN64
-// Even in VC11, MS did not provide x64 ASM versions of the string operations, so for now we stay with C++.
 int MemICmp(const void* buf1, const void* buf2, int n)
 {
     int ret = _memicmp(buf1, buf2, n);
@@ -315,69 +192,9 @@ int MemICmp(const void* buf1, const void* buf2, int n)
         return 0;
     return (ret < 0) ? -1 : 1;
 }
-#else  // _WIN64
-
-int MemICmp(const void* buf1, const void* buf2, int n)
-{
-    const BYTE* table = LowerCase;
-    __asm {
-        // load up arguments
-    mov     ecx,[n] // ecx = byte count
-    or      ecx,ecx        
-    jz      toend // if count = 0, we are done
-                           
-    mov     esi,buf1 // esi = buf1
-    mov     edi,buf2 // edi = buf2
-    mov     edx,table // edx = LowerCase
-                           
-    xor     eax,eax        
-    xor     ebx,ebx        
-                           
-    align   4              
-                           
-lupe:                      
-    mov     al,[esi] // al = *buf1
-    inc     esi
-    mov     bl,[edi] // bl = *buf2
-    inc     edi
-
-    cmp     al,bl // test for equality BEFORE converting case
-    je      short dolupe
-
-    mov     al,[edx + eax] // convert *buf1 char to lower case
-    mov     bl,[edx + ebx] // convert *buf2 char to lower case
-
-    cmp     al,bl // now equal?
-    jne     short differ
-
-dolupe:
-    dec     ecx
-    jnz     lupe
-
-    jmp     short toend
-
-differ:
-    mov     ecx,-1 // return -1 if buf1 < buf2
-    jb      short toend
-
-    neg     ecx // return 1
-
-toend:
-    mov     eax,ecx // move return value to eax
-    }
-    // the return value is in eax to avoid a compiler warning
-    // for functions without a return value, use the following hack
-    BOOL retVal;
-    __asm {mov retVal, eax}
-    return retVal;
-}
-#endif // _WIN64
 
 //
 //*****************************************************************************
-
-#ifdef _WIN64
-// Even in VC11, MS did not provide x64 ASM versions of the string operations, so for now we stay with C++.
 
 // original function
 int StrICmpEx(const char* s1, int l1, const char* s2, int l2)
@@ -411,74 +228,6 @@ int StrICmpEx(const char *s1, int l1, const char *s2, int l2)
   else return 0;
 }
 */
-#else  // _WIN64
-
-int StrICmpEx(const char* s1, int l1, const char* s2, int l2)
-{
-    int l = (l1 < l2) ? l1 : l2;
-
-    if (l > 0)
-    {
-        // MemICmp
-        const BYTE* table = LowerCase;
-        __asm {
-            // load up arguments
-      mov     ecx,[l] // ecx = byte count
-      or      ecx,ecx        
-      jz      toend // if the byte count is 0, we are done
-                           
-      mov     esi,s1 // esi = buf1
-      mov     edi,s2 // edi = buf2
-      mov     edx,table // edx = LowerCase
-                           
-      xor     eax,eax        
-      xor     ebx,ebx        
-                           
-      align   4              
-                           
-  lupe:                      
-      mov     al,[esi] // al = *buf1
-      inc     esi
-      mov     bl,[edi] // bl = *buf2
-      inc     edi
-
-      cmp     al,bl // test for equality BEFORE converting case
-      je      short dolupe
-
-      mov     al,[edx + eax] // convert *buf1 char to lower case
-      mov     bl,[edx + ebx] // convert *buf2 char to lower case
-
-      cmp     al,bl // now equal?
-      jne     short differ
-
-  dolupe:
-      dec     ecx
-      jnz     lupe
-
-      jmp     short toend
-
-  differ:
-      mov     ecx,-1 // return -1 if buf1 < buf2
-      jb      short toend
-
-      neg     ecx // return 1
-
-  toend:
-      mov     eax,ecx // move return value to eax
-        }
-        // the return value is in eax to avoid a compiler warning
-        // for functions without a return value, use the following hack
-        BOOL retVal;
-        __asm {mov retVal, eax}
-        if (retVal != 0) return retVal;
-    }
-
-    if (l1 != l2)
-        return (l1 < l2) ? -1 : 1;
-    else
-        return 0;
-}
-#endif // _WIN64
 
 //
 //*****************************************************************************

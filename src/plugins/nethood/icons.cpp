@@ -722,29 +722,5 @@ HRESULT CNethoodIcons::GetStockIconInfo(
     __in UINT uFlags,
     __inout SHSTOCKICONINFO* psii)
 {
-    typedef HRESULT(WINAPI * PFN_SHGetStockIconInfo)(SHSTOCKICONID, UINT, SHSTOCKICONINFO*);
-
-    if (_winmajor >= 6)
-    {
-        // SHGetStockIconInfo is implemented on Vista and
-        // later systems only.
-
-        HMODULE hShell32;
-
-        hShell32 = GetModuleHandle(TEXT("shell32.dll"));
-        if (hShell32 != NULL)
-        {
-            PFN_SHGetStockIconInfo pfnSHGetStockIconInfo;
-
-            pfnSHGetStockIconInfo = reinterpret_cast<PFN_SHGetStockIconInfo>(
-                GetProcAddress(hShell32, "SHGetStockIconInfo")); // Min: Vista
-
-            if (pfnSHGetStockIconInfo != NULL)
-            {
-                return (*pfnSHGetStockIconInfo)(siid, uFlags, psii);
-            }
-        }
-    }
-
-    return E_NOTIMPL;
+    return ::SHGetStockIconInfo(siid, uFlags, psii);
 }

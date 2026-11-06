@@ -672,18 +672,12 @@ BOOL CFilesWindow::BuildScriptMain2(COperations* script, BOOL copy, char* target
                             AddStringToNames(usedNames, targetName);
                         char copyTxt[100];
                         lstrcpyn(copyTxt, LoadStr(IDS_NEWNAME_COPY), 100);
-                        char ofTxt[100];
-                        lstrcpyn(ofTxt, LoadStr(IDS_NEWNAME_OF), 100);
-                        char copyOpenPar[100];
-                        lstrcpyn(copyOpenPar, copyTxt, 98);
-                        lstrcpyn(copyOpenPar + strlen(copyOpenPar), " (", 100 - (int)strlen(copyOpenPar));
                         char hyphenCopy[100];
                         strcpy(hyphenCopy, " - ");
                         lstrcpyn(hyphenCopy + strlen(hyphenCopy), copyTxt, 100 - (int)strlen(hyphenCopy));
                         char number[20];
                         int val = 0;
-                        if (WindowsVistaAndLater)
-                        {
+                        { // Vista+ naming scheme: "name - Copy.ext" and "name - Copy (n).ext"
                             int len = (int)strlen(targetName);
                             char* ext = (attrs & FILE_ATTRIBUTE_DIRECTORY) ? NULL : strrchr(s + 1, '.'); // directories have no extensions (copied Vista behavior)
                             if (ext != NULL && strchr(ext, ' ') != NULL)
@@ -771,129 +765,6 @@ BOOL CFilesWindow::BuildScriptMain2(COperations* script, BOOL copy, char* target
                                 {
                                     strcpy(mapNameBuf, targetName);
                                     mapName = mapNameBuf;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (strncmp(s + 1, copyOpenPar, strlen(copyOpenPar)) == 0)
-                            {
-                                char* num = s + 1 + strlen(copyOpenPar);
-                                while (*num >= '0' && *num <= '9')
-                                    num++;
-                                if (*num == ')')
-                                {
-                                    val = 1;
-
-                                _NEXT_1: // pattern "copy (++val)*"
-
-                                    lstrcpyn(targetName, copyOpenPar, MAX_PATH);
-                                    sprintf(number, "%d)", ++val);
-                                    lstrcpyn(targetName + strlen(targetName), number, (int)(MAX_PATH - strlen(targetName)));
-                                    lstrcpyn(targetName + strlen(targetName), num + 1, (int)(1 + MAX_PATH - strlen(targetName))); // "1 +" ensures that overly long names result in exactly MAX_PATH
-                                    if (strlen(targetName) < MAX_PATH)                                                            // name assembly succeeded, otherwise we ignore the result
-                                    {
-                                        if ((isKnown = ContainsString(usedNames, targetName)) != 0 ||
-                                            SalGetFileAttributes(targetPath) != 0xFFFFFFFF)
-                                        {
-                                            if (!isKnown)
-                                                AddStringToNames(usedNames, targetName);
-                                            goto _NEXT_1;
-                                        }
-                                        else
-                                        {
-                                            strcpy(mapNameBuf, targetName);
-                                            mapName = mapNameBuf;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    val = 1;
-                                    int len = (int)strlen(targetName);
-                                    char* ext = strrchr(num, '.');
-                                    char* num2 = ext == NULL ? (s + 1 + len - 1) : (ext - 1);
-                                    if (num2 > s && *num2 == ')')
-                                    {
-                                        while (--num2 > s && *num2 >= '0' && *num2 <= '9')
-                                            ;
-                                        if (num2 > s && *num2 == '(')
-                                        {
-                                            if (num2 - 1 > s && *(num2 - 1) == ' ')
-                                                num2--;
-                                        }
-                                        else
-                                            num2 = NULL;
-                                    }
-                                    else
-                                        num2 = NULL;
-
-                                _NEXT_2: // typ "* (++val)"
-
-                                    sprintf(number, " (%d)", ++val);
-                                    if (ext == NULL)
-                                    {
-                                        if (num2 == NULL)
-                                            lstrcpyn(targetName + len, number, 1 + MAX_PATH - len); // "1 +" ensures that overly long names result in exactly MAX_PATH
-                                        else
-                                            lstrcpyn(targetName + (num2 - (s + 1)), number, (int)(1 + MAX_PATH - (num2 - (s + 1)))); // "1 +" ensures that overly long names result in exactly MAX_PATH
-                                    }
-                                    else
-                                    {
-                                        if (num2 == NULL)
-                                            lstrcpyn(targetName + (ext - (s + 1)), number, (int)(1 + MAX_PATH - (ext - (s + 1)))); // "1 +" ensures that overly long names result in exactly MAX_PATH
-                                        else
-                                            lstrcpyn(targetName + (num2 - (s + 1)), number, (int)(1 + MAX_PATH - (num2 - (s + 1)))); // "1 +" ensures that overly long names result in exactly MAX_PATH
-                                        lstrcpyn(targetName + strlen(targetName), ext, 1 + MAX_PATH - (int)strlen(targetName));      // "1 +" ensures that overly long names result in exactly MAX_PATH
-                                    }
-                                    if (strlen(targetName) < MAX_PATH) // name assembly succeeded, otherwise we ignore the result
-                                    {
-                                        if ((isKnown = ContainsString(usedNames, targetName)) != 0 ||
-                                            SalGetFileAttributes(targetPath) != 0xFFFFFFFF)
-                                        {
-                                            if (!isKnown)
-                                                AddStringToNames(usedNames, targetName);
-                                            goto _NEXT_2;
-                                        }
-                                        else
-                                        {
-                                            strcpy(mapNameBuf, targetName);
-                                            mapName = mapNameBuf;
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                            _NEXT_3: // pattern "copy of *", then "copy (++val) of *"
-
-                                lstrcpyn(targetName, copyTxt, MAX_PATH);
-                                lstrcpyn(targetName + strlen(targetName), " ", MAX_PATH - (int)strlen(targetName));
-                                if (++val > 1)
-                                {
-                                    sprintf(number, "(%d) ", val);
-                                    lstrcpyn(targetName + strlen(targetName), number, MAX_PATH - (int)strlen(targetName));
-                                }
-                                if (ofTxt[0] != ' ' || ofTxt[1] != 0)
-                                {
-                                    lstrcpyn(targetName + strlen(targetName), ofTxt, MAX_PATH - (int)strlen(targetName));
-                                    lstrcpyn(targetName + strlen(targetName), " ", MAX_PATH - (int)strlen(targetName));
-                                }
-                                lstrcpyn(targetName + strlen(targetName), s + 1, 1 + MAX_PATH - (int)strlen(targetName)); // "1 +" ensures that overly long names result in exactly MAX_PATH
-                                if (strlen(targetName) < MAX_PATH)                                                        // name assembly succeeded, otherwise we ignore the result
-                                {
-                                    if ((isKnown = ContainsString(usedNames, targetName)) != 0 ||
-                                        SalGetFileAttributes(targetPath) != 0xFFFFFFFF)
-                                    {
-                                        if (!isKnown)
-                                            AddStringToNames(usedNames, targetName);
-                                        goto _NEXT_3;
-                                    }
-                                    else
-                                    {
-                                        strcpy(mapNameBuf, targetName);
-                                        mapName = mapNameBuf;
-                                    }
                                 }
                             }
                         }

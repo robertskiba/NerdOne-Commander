@@ -127,8 +127,6 @@ extern int GlobalDisconnectPanel; // panel for which disconnect is called (-1 ==
 
 extern CThreadQueue AuxThreadQueue; // queue of all auxiliary threads
 
-extern BOOL WindowsVistaAndLater; // Windows Vista or later from the NT line
-
 // global variables for the FTPCMD_CHANGETGTPANELPATH command
 extern int TargetPanelPathPanel;
 extern char TargetPanelPath[MAX_PATH];

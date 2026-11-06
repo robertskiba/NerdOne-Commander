@@ -24,12 +24,8 @@
 
 #define SALMON_FILEMAPPIN_NAME_SIZE 20
 
-// the x64 and x86 versions of Salamander/Salmon are not compatible
-#ifdef _WIN64
+// the x64 and x86 versions of Salamander/Salmon are not compatible (only x64 is built now)
 #define SALMON_SHARED_MEMORY_VERSION_PLATFORM 0x10000000
-#else
-#define SALMON_SHARED_MEMORY_VERSION_PLATFORM 0x00000000
-#endif
 #define SALMON_SHARED_MEMORY_VERSION (SALMON_SHARED_MEMORY_VERSION_PLATFORM | 4)
 
 #pragma pack(push)

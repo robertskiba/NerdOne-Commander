@@ -2363,21 +2363,6 @@ void CFilesWindow::RenameFile(int specialIndex)
 
     if (Is(ptDisk)) // renaming on disk
     {
-#ifndef _WIN64
-        if (Windows64Bit && isDir)
-        {
-            char path[MAX_PATH];
-            lstrcpyn(path, GetPath(), MAX_PATH);
-            if (SalPathAppend(path, f->Name, MAX_PATH) && IsWin64RedirectedDir(path, NULL, FALSE))
-            {
-                char msg[300 + MAX_PATH];
-                _snprintf_s(msg, _TRUNCATE, LoadStr(IDS_ERRRENAMINGW64ALIAS), f->Name);
-                SalMessageBox(MainWindow->HWindow, msg, LoadStr(IDS_ERRORTITLE), MB_OK | MB_ICONEXCLAMATION);
-                return;
-            }
-        }
-#endif // _WIN64
-
         BeginSuspendMode(); // snooper takes a break
 
         BOOL mayChange = FALSE;
@@ -2881,27 +2866,7 @@ CQuickRenameWindow::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         break;
     }
-
-    case WM_KEYDOWN:
-    {
-        if (wParam == 'A')
-        {
-            // since Windows Vista, SelectAll works by default, so we leave select-all to them
-            if (!WindowsVistaAndLater)
-            {
-                BOOL controlPressed = (GetKeyState(VK_CONTROL) & 0x8000) != 0;
-                BOOL altPressed = (GetKeyState(VK_MENU) & 0x8000) != 0;
-                BOOL shiftPressed = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
-                if (controlPressed && !shiftPressed && !altPressed)
-                {
-                    SendMessage(HWindow, EM_SETSEL, 0, -1);
-                    SkipNextCharacter = TRUE; // prevent a beep
-                    return 0;
-                }
-            }
-        }
-        break;
-    }
+        // WM_KEYDOWN: since Windows Vista, SelectAll (Ctrl+A) works by default, so we leave select-all to the edit control
     }
     return CWindow::WindowProc(uMsg, wParam, lParam);
 }

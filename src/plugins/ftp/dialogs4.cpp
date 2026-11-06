@@ -484,19 +484,12 @@ CSrvTypeTestParserDlg::CSrvTypeTestParserDlg(HWND parent, CFTPParser* parser,
     {
         ImageList_SetImageCount(SymbolsImageList, 3); // initialization
 
-        HINSTANCE iconsDLL;
-        if (WindowsVistaAndLater)
-            iconsDLL = HANDLES(LoadLibraryEx("imageres.dll", NULL, LOAD_LIBRARY_AS_DATAFILE));
-        else
-        {
-            const char* Shell32DLLName = "shell32.dll";
-            iconsDLL = HANDLES(LoadLibraryEx(Shell32DLLName, NULL, LOAD_LIBRARY_AS_DATAFILE));
-        }
+        HINSTANCE iconsDLL = HANDLES(LoadLibraryEx("imageres.dll", NULL, LOAD_LIBRARY_AS_DATAFILE));
 
         BOOL err = FALSE;
         if (iconsDLL != NULL)
         {
-            HICON shortcutOverlay = (HICON)HANDLES(LoadImage(iconsDLL, MAKEINTRESOURCE(WindowsVistaAndLater ? 163 : 30),
+            HICON shortcutOverlay = (HICON)HANDLES(LoadImage(iconsDLL, MAKEINTRESOURCE(163),
                                                              IMAGE_ICON, 16, 16, SalamanderGeneral->GetIconLRFlags()));
             if (shortcutOverlay != NULL)
             {
@@ -506,9 +499,8 @@ CSrvTypeTestParserDlg::CSrvTypeTestParserDlg(HWND parent, CFTPParser* parser,
                 int i;
                 for (i = 0; i < 2; i++)
                 {
-                    int resID = (i == 0 ? 4 /* directory */ : 1 /* non-assoc. file */);
-                    int vistaResID = (i == 0 ? 4 /* directory */ : 2 /* non-assoc. file */);
-                    HICON hIcon = (HICON)HANDLES(LoadImage(iconsDLL, MAKEINTRESOURCE(WindowsVistaAndLater ? vistaResID : resID),
+                    int resID = (i == 0 ? 4 /* directory */ : 2 /* non-assoc. file */);
+                    HICON hIcon = (HICON)HANDLES(LoadImage(iconsDLL, MAKEINTRESOURCE(resID),
                                                            IMAGE_ICON, 16, 16, SalamanderGeneral->GetIconLRFlags()));
                     if (hIcon != NULL)
                     {

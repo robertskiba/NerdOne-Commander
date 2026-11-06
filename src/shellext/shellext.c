@@ -22,11 +22,7 @@ HANDLE LogFile = NULL;
 HANDLE LogFileMutex = NULL;
 char ModuleName[MAX_PATH];
 
-#ifdef _WIN64
 const char* ShExtName = "salextx64.dll";
-#else  // _WIN64
-const char* ShExtName = "salextx86.dll";
-#endif // _WIN64
 
 void WriteToLog(const char* str)
 {

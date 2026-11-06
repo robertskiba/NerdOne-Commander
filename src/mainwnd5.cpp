@@ -373,8 +373,7 @@ BOOL CompareFilesByContent(HWND hWindow, CCmpDirProgressDialog* progressDlg,
                     }
                     if (readErr || *canceled)
                         break;
-                    readingIsFast1 = WindowsVistaAndLater &&                                                                                           // on W2K/XP this should not make things faster, so we will not try it there
-                                     GetTickCount() - readBegTime < (DWORD)(((unsigned __int64)read1 * COMPARE_BUF_TIME_LIMIT) / COMPARE_BUFFER_SIZE); // measure the speed so it is over 1 MB/s
+                    readingIsFast1 = GetTickCount() - readBegTime < (DWORD)(((unsigned __int64)read1 * COMPARE_BUF_TIME_LIMIT) / COMPARE_BUFFER_SIZE); // measure the speed so it is over 1 MB/s
                                                                                                                                                        /*
           // read the entire buffer at once from one file (on Vista, when both files are on the same physical disk and the buffer is large, this is slightly faster than reading in 32KB blocks)
           if (!ReadFile(hFile1, buffer1, bufSize, &read1, NULL))
@@ -445,8 +444,7 @@ BOOL CompareFilesByContent(HWND hWindow, CCmpDirProgressDialog* progressDlg,
                     }
                     if (readErr || ret || *canceled)
                         break;
-                    readingIsFast2 = WindowsVistaAndLater &&                                                                                           // on W2K/XP this should not make things faster, so we will not try it there
-                                     GetTickCount() - readBegTime < (DWORD)(((unsigned __int64)read2 * COMPARE_BUF_TIME_LIMIT) / COMPARE_BUFFER_SIZE); // measure the speed so it is over 1 MB/s
+                    readingIsFast2 = GetTickCount() - readBegTime < (DWORD)(((unsigned __int64)read2 * COMPARE_BUF_TIME_LIMIT) / COMPARE_BUFFER_SIZE); // measure the speed so it is over 1 MB/s
                                                                                                                                                        /*
           // read the entire buffer at once from one file (on Vista, when both files are on the same physical disk and the buffer is large, this is slightly faster than reading in 32KB blocks)
           if (!ReadFile(hFile2, buffer2, bufSize, &read2, NULL))

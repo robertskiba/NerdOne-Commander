@@ -1431,28 +1431,14 @@ private:
         HWND hwnd,
         CNethoodCacheManagementThread* pInstance)
     {
-#ifndef _WIN64
-#pragma warning(push)
-#pragma warning(disable : 4244)
-#endif
         SetWindowLongPtr(hwnd, GWLP_USERDATA,
                          reinterpret_cast<LONG_PTR>(pInstance));
-#ifndef _WIN64
-#pragma warning(pop)
-#endif
     }
 
     static inline CNethoodCacheManagementThread* GetInstanceFromHwnd(
         HWND hwnd)
     {
-#ifndef _WIN64
-#pragma warning(push)
-#pragma warning(disable : 4312)
-#endif
         return reinterpret_cast<CNethoodCacheManagementThread*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-#ifndef _WIN64
-#pragma warning(pop)
-#endif
     }
 
 public:

@@ -21,11 +21,6 @@ extern "C"
 {
 #endif // __cplusplus
 
-// Defines for Win64
-#ifndef _WIN64
-#define DWORD_PTR DWORD
-#endif
-
     // Commands to pass to HtmlHelp()
 
 #define HH_DISPLAY_TOPIC 0x0000

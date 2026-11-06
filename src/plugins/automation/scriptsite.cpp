@@ -312,13 +312,7 @@ HRESULT STDMETHODCALLTYPE CScriptSite::GetApplication(
 
     if (pdi->pDbgApp != NULL)
     {
-#ifdef _WIN64
 #pragma message("Unimplemented IActiveScriptSiteDebug32::GetApplication")
-#else
-        *ppda = pdi->pDbgApp;
-        pdi->pDbgApp->AddRef();
-        hr = S_OK;
-#endif
     }
 
     if (FAILED(hr))
@@ -339,13 +333,9 @@ HRESULT STDMETHODCALLTYPE CScriptSite::GetApplication(
 
     if (pdi->pDbgApp != NULL)
     {
-#ifndef _WIN64
-#pragma message("Unimplemented IActiveScriptSiteDebug64::GetApplication")
-#else
         *ppda = pdi->pDbgApp;
         pdi->pDbgApp->AddRef();
         hr = S_OK;
-#endif
     }
 
     if (FAILED(hr))

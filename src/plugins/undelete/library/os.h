@@ -23,16 +23,6 @@ enum VolumeType
 
 // ***************************************************************************
 //
-//  Global variables
-//
-extern BOOL IsWindowsNT;
-extern BOOL IsWindows2000AndLater;
-extern BOOL IsWindows95;
-extern BOOL IsWindows95OSR2AndLater;
-extern BOOL IsWindowsVistaAndLater;
-
-// ***************************************************************************
-//
 //  Auxiliary functions
 //
 template <typename CHAR>
@@ -147,13 +137,9 @@ public:
 //
 //  Template methods implementation
 //
-BOOL OS_InitOSVersion();
-
 template <typename CHAR>
 BOOL OS<CHAR>::OS_InitLibraryData()
 {
-    if (!OS_InitOSVersion())
-        return FALSE;
     if (!OS_InitShell32Bindings())
         return FALSE;
     OS_LoadImageResModule();
@@ -178,8 +164,7 @@ void OS<CHAR>::OS_ReleaseLibraryData()
 template <typename CHAR>
 void OS<CHAR>::OS_LoadImageResModule()
 {
-    if (IsWindowsVistaAndLater)
-        ImageResDLL = LoadLibraryExA("imageres.dll", NULL, LOAD_LIBRARY_AS_DATAFILE);
+    ImageResDLL = LoadLibraryExA("imageres.dll", NULL, LOAD_LIBRARY_AS_DATAFILE);
 }
 
 template <typename CHAR>
@@ -358,7 +343,7 @@ HICON OS<CHAR>::OS_GetDriveIcon(const CHAR* root, UINT type, BOOL accessible, BO
 {
     CALL_STACK_MESSAGE5("GetDriveIcon(%s, %u, %d, %d)", root, type, accessible, large);
     int id;
-    if (IsWindowsVistaAndLater && ImageResDLL != NULL)
+    if (ImageResDLL != NULL)
     {
         switch (type)
         {
@@ -437,7 +422,7 @@ template <typename CHAR>
 HICON OS<CHAR>::OS_GetEmptyRecycleBinIcon(BOOL large)
 {
     CALL_STACK_MESSAGE2("GetEmptyRecycleBinIcon(%d)", large);
-    if (IsWindowsVistaAndLater && ImageResDLL != NULL)
+    if (ImageResDLL != NULL)
     {
         return (HICON)LoadImage(ImageResDLL,
                                 MAKEINTRESOURCE(55), IMAGE_ICON,
@@ -522,64 +507,6 @@ DWORD OS<CHAR>::OS_GetDriveFormFactor(const CHAR* drive)
     HANDLE h;
     DWORD dwRc = 0;
 
-    if (GetVersion() >= 0x80000000) // Windows 9x, ME
-    {
-        // On Windows 95, use the technique described in
-        // the Knowledge Base article Q125712 and in MSDN under
-        // "Windows 95 Guide to Programming", "Using Windows 95
-        // features", "Using VWIN32 to Carry Out MS-DOS Functions".
-
-        int iDrive;
-        char letter = (char)drive[0];
-        if (letter >= 'a' && letter <= 'z')
-            iDrive = letter - 'a' + 1;
-        else if (letter >= 'A' && letter <= 'Z')
-            iDrive = letter - 'A' + 1;
-
-        h = CreateFileA("\\\\.\\VWIN32", 0, 0, 0, 0, FILE_FLAG_DELETE_ON_CLOSE, 0);
-
-        if (h != INVALID_HANDLE_VALUE)
-        {
-            DWORD cb;
-            DIOC_REGISTERS reg;
-            DOSDPB dpb;
-
-            dpb.specialFunc = 0; // return default type; do not hit disk
-
-            reg.reg_EBX = iDrive;                 // BL = drive number (1-based)
-            reg.reg_EDX = (DWORD)(DWORD_PTR)&dpb; // DS:EDX -> DPB // cast is OK, we will not run this on x64
-            reg.reg_ECX = 0x0860;                 // CX = Get DPB
-            reg.reg_EAX = 0x440D;                 // AX = Ioctl
-            reg.reg_Flags = CARRY_FLAG;           // assume failure
-
-            // Make sure both DeviceIoControl and Int 21h succeeded.
-            if (DeviceIoControl(h, VWIN32_DIOC_DOS_IOCTL, &reg, sizeof(reg), &reg, sizeof(reg), &cb, 0) &&
-                !(reg.reg_Flags & CARRY_FLAG))
-            {
-                switch (dpb.devType)
-                {
-                case 0: // 5.25 360K floppy
-                case 1: // 5.25 1.2MB floppy
-                    dwRc = 525;
-                    break;
-
-                case 2: // 3.5  720K floppy
-                case 7: // 3.5  1.44MB floppy
-                case 9: // 3.5  2.88MB floppy
-                    dwRc = 350;
-                    break;
-
-                case 3: // 8" low-density floppy
-                case 4: // 8" high-density floppy
-                    dwRc = 800;
-                    break;
-                }
-            }
-
-            NOHANDLES(CloseHandle(h));
-        }
-    }
-    else
     {
         // On Windows NT, use the technique described in the Knowledge
         // Base article Q115828 and in the "FLOPPY" SDK sample.

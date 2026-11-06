@@ -353,8 +353,6 @@ CComboboxEdit::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_SYSKEYDOWN:
     {
         SkipCharacter = FALSE;
-        BOOL ctrlPressed = (GetKeyState(VK_CONTROL) & 0x8000) != 0;
-        BOOL shiftPressed = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
         BOOL altPressed = (GetKeyState(VK_MENU) & 0x8000) != 0;
         if (HelperButton && wParam == VK_RIGHT && altPressed)
         {
@@ -382,17 +380,7 @@ CComboboxEdit::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
             return 0;
         }
 
-        if (ctrlPressed && !shiftPressed && !altPressed && wParam == 'A')
-        {
-            // starting with Windows Vista SelectAll already works by default, so let it handle select all there
-            if (!SalIsWindowsVersionOrGreater(6, 0, 0))
-            {
-                SendMessage(HWindow, EM_SETSEL, 0, -1);
-                SkipCharacter = TRUE; // suppress the beep
-                return TRUE;
-            }
-        }
-
+        // Ctrl+A: SelectAll works by default in edit controls (since Windows Vista), so let them handle it
         break;
     }
 

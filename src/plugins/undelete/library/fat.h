@@ -148,9 +148,7 @@ private:
 
     TDirectArray<CLUSTER>* ScanResults;
 
-#ifdef _WIN64
     TIndirectArray<FILE_RECORD_I<CHAR>> FILE_RECORD_Pointers;
-#endif // _WIN64
 
 #ifdef TRACE_ENABLE
     DWORD InsertedAhead;
@@ -194,11 +192,8 @@ BOOL isupdir(DIR_ENTRY_SHORT* entry);
 
 template <typename CHAR>
 CFATSnapshot<CHAR>::CFATSnapshot(CVolume<CHAR>* volume)
-    : CSnapshot<CHAR>(volume)
-#ifdef _WIN64
-      ,
+    : CSnapshot<CHAR>(volume),
       FILE_RECORD_Pointers(1000, 1000, dtNoDelete)
-#endif // _WIN64
 {
     FAT = NULL;
     VirtualDirsCount = 0;
@@ -608,12 +603,8 @@ BOOL CFATSnapshot<CHAR>::DecodeDirectoryClusters(BYTE* buffer, DWORD len, DIR_IT
             if (entry->Attr & FAT_ATTR_DIRECTORY)
             {
                 // we already have record for directories
-#ifdef _WIN64
                 // pointer to FileSize doesn't fit on x64, so we store only index into FILE_RECORD_Pointers array
                 record = FILE_RECORD_Pointers[entry->FileSize];
-#else  // _WIN64
-                record = (FILE_RECORD_I<CHAR>*)entry->FileSize; // on x86 pointer fits directly into FileSize
-#endif // _WIN64
             }
             else
             {
@@ -793,7 +784,6 @@ BOOL CFATSnapshot<CHAR>::ScanDirectoryCluster(BYTE* buffer, DWORD len, BOOL forc
             if (dir == NULL)
                 return String<CHAR>::Error(IDS_UNDELETE, IDS_LOWMEM);
             dir->IsDir = TRUE;
-#ifdef _WIN64
             // store pointer to directory: to FileSize put index in array FILE_RECORD_Pointers
             // (we cannot place x64 pointer into FileSize)
             int ptrIndex = FILE_RECORD_Pointers.Add(dir);
@@ -804,9 +794,6 @@ BOOL CFATSnapshot<CHAR>::ScanDirectoryCluster(BYTE* buffer, DWORD len, BOOL forc
                 return String<CHAR>::Error(IDS_UNDELETE, IDS_LOWMEM);
             }
             entry->FileSize = ptrIndex;
-#else  // _WIN64
-            entry->FileSize = (DWORD)dir; // store pointer to directory (it is possible in x86)
-#endif // _WIN64
 
             int cluster = GetCluster(entry);
             if (entry->Name[0] == 0xE5 || forcedeleted)
@@ -1163,9 +1150,7 @@ BOOL CFATSnapshot<CHAR>::LoadDeletedDirectories()
     int ret;
     BOOL ret2 = FALSE;
 
-#ifdef _WIN64
     int pointersCount = FILE_RECORD_Pointers.Count;
-#endif // _WIN64
 
     while (!HeapAhead2->IsEmpty())
     {
@@ -1246,11 +1231,9 @@ BOOL CFATSnapshot<CHAR>::LoadDeletedDirectories()
             if (!DecodeDirectoryClusters(buffer, nclus * this->Volume->BytesPerCluster, &item.dir->DirItems, &item.dir->NumDirItems, TRUE))
                 goto error;
 
-#ifdef _WIN64
             // buffer content will be released, also pointers to buffer will be released
             if (FILE_RECORD_Pointers.Count > pointersCount)
                 FILE_RECORD_Pointers.Delete(pointersCount, FILE_RECORD_Pointers.Count - pointersCount);
-#endif // _WIN64
 
             if (this->Progress->GetWantCancel())
                 goto error;
@@ -1266,11 +1249,9 @@ BOOL CFATSnapshot<CHAR>::LoadDeletedDirectories()
     TRACE_I("LoadDeletedDirectories: bufmax=" << bufmax);
 
 error:
-#ifdef _WIN64
     // buffer will be released, also pointers to buffer will be released
     if (FILE_RECORD_Pointers.Count > pointersCount)
         FILE_RECORD_Pointers.Delete(pointersCount, FILE_RECORD_Pointers.Count - pointersCount);
-#endif // _WIN64
 
     delete[] buffer;
     return ret2;
@@ -1409,9 +1390,7 @@ BOOL CFATSnapshot<CHAR>::DecodeScannedCluster(FILE_RECORD_I<CHAR>* record, CLUST
         p += this->Volume->BytesPerCluster;
     } while (c != NULL);
 
-#ifdef _WIN64
     int pointersCount = FILE_RECORD_Pointers.Count;
-#endif // _WIN64
 
     // similar to ScanDirectoryCluster
     DIR_ENTRY_SHORT* entry = (DIR_ENTRY_SHORT*)buffer;
@@ -1428,7 +1407,6 @@ BOOL CFATSnapshot<CHAR>::DecodeScannedCluster(FILE_RECORD_I<CHAR>* record, CLUST
                 goto error;
             }
             dir->IsDir = TRUE;
-#ifdef _WIN64
             // store pointer to directory: to FileSize put index in array FILE_RECORD_Pointers
             // (we cannot place x64 pointer into FileSize)
             int ptrIndex = FILE_RECORD_Pointers.Add(dir);
@@ -1440,9 +1418,6 @@ BOOL CFATSnapshot<CHAR>::DecodeScannedCluster(FILE_RECORD_I<CHAR>* record, CLUST
                 goto error;
             }
             entry->FileSize = ptrIndex;
-#else  // _WIN64
-            entry->FileSize = (DWORD)dir; // store pointer to directory (it is possible in x86)
-#endif // _WIN64
             if ((c = GetScannedCluster(GetCluster(entry))) != NULL)
             {
                 if (!DecodeScannedCluster(dir, c))
@@ -1460,11 +1435,9 @@ BOOL CFATSnapshot<CHAR>::DecodeScannedCluster(FILE_RECORD_I<CHAR>* record, CLUST
     ret = DecodeDirectoryClusters(buffer, len, &record->DirItems, &record->NumDirItems, TRUE);
 
 error:
-#ifdef _WIN64
     // buffer will be released, also pointers to buffer will be released
     if (FILE_RECORD_Pointers.Count > pointersCount)
         FILE_RECORD_Pointers.Delete(pointersCount, FILE_RECORD_Pointers.Count - pointersCount);
-#endif // _WIN64
 
     delete[] buffer;
     return ret;
@@ -2542,12 +2515,8 @@ void CFATSnapshot<CHAR>::FreeRecord2(FILE_RECORD_I<CHAR>* record)
             // free what was allocated by ScanDirectoryCluster
             if ((entry->Attr & FAT_ATTR_DIRECTORY) && !IgnoreEntry(entry, FALSE /* deleteddir does not matter */))
             {
-#ifdef _WIN64
                 // pointer to FileSize doesn't fit on x64, so we store only index into FILE_RECORD_Pointers array
                 FreeRecord2(FILE_RECORD_Pointers[entry->FileSize]);
-#else  // _WIN64
-                FreeRecord2((FILE_RECORD_I<CHAR>*)entry->FileSize); // on x86 pointer fits directly into FileSize
-#endif // _WIN64
             }
             entry++;
         }
@@ -2589,9 +2558,7 @@ void CFATSnapshot<CHAR>::Free()
     }
     VirtualDirsCount = 0;
 
-#ifdef _WIN64
     FILE_RECORD_Pointers.DestroyMembers(); // used also in FreeRecord2()
-#endif                                     // _WIN64
 
     // to FAT variable is accessed from FreeRecord2() -> IgnoreEntry(), we could not free it until now
     if (FAT != NULL)

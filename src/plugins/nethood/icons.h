@@ -35,45 +35,6 @@ public:
     };
 
 private:
-#if (_WIN32_WINNT < 0x0600)
-
-#if !defined(_WIN64)
-#include <pshpack1.h>
-#endif
-
-    enum SHSTOCKICONID
-    {
-        SIID_INVALID = -1,
-        SIID_DOCNOASSOC = 0,
-        SIID_FOLDER = 3,
-        SIID_DRIVENET = 9,
-        SIID_WORLD = 13,
-        SIID_SERVER = 15,
-        SIID_PRINTER = 16,
-        SIID_MYNETWORK = 17,
-        SIID_SERVERSHARE = 51
-    };
-
-    struct SHSTOCKICONINFO
-    {
-        DWORD cbSize;
-        HICON hIcon;
-        int iSysImageIndex;
-        int iIcon;
-        WCHAR szPath[MAX_PATH];
-    };
-
-    enum _SHSTOCKICONFLAG
-    {
-        SHGSI_ICONLOCATION = 0
-    };
-
-#if !defined(_WIN64)
-#include <poppack.h>
-#endif
-
-#endif
-
     /// Context value used internally by the IconIndexToIconId method.
     struct ENUMICONRESINFO
     {

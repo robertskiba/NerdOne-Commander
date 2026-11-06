@@ -374,11 +374,7 @@ STDAPI DllUnregisterServer()
 // used by remove.exe and setup.exe (uninstalls the previous version during upgrades)
 STDAPI DllUnregisterServerOtherPlatform()
 {
-#ifdef _WIN64
     return DllUnregisterServerBody(KEY_WOW64_32KEY);
-#else  // _WIN64
-    return DllUnregisterServerBody(KEY_WOW64_64KEY);
-#endif // _WIN64
 }
 
 #endif // INSIDE_SALAMANDER
@@ -520,11 +516,7 @@ BOOL SECRegisterToRegistry(const char* shellExtensionPath, BOOL doNotLoadDLL, RE
         if (MyCreateKey(classesKey, key, &hKey, regView))
         {
             char descrBuf[200];
-#ifdef _WIN64
             wsprintf(descrBuf, SHEXREG_OPENSALAMANDER_DESCR, (regView & KEY_WOW64_32KEY) ? "x86" : "x64");
-#else  // _WIN64
-            wsprintf(descrBuf, SHEXREG_OPENSALAMANDER_DESCR, (regView & KEY_WOW64_64KEY) ? "x64" : "x86");
-#endif // _WIN64
             RegSetValueEx(hKey, NULL, 0, REG_SZ, (BYTE*)descrBuf, lstrlen(descrBuf) + 1);
             NOHANDLES(RegCloseKey(hKey));
         }
@@ -569,11 +561,7 @@ BOOL SECRegisterToRegistry(const char* shellExtensionPath, BOOL doNotLoadDLL, RE
         if (MyCreateKey(HKEY_LOCAL_MACHINE, key, &hKey, regView))
         {
             char descrBuf[200];
-#ifdef _WIN64
             wsprintf(descrBuf, SHEXREG_OPENSALAMANDER_DESCR, (regView & KEY_WOW64_32KEY) ? "x86" : "x64");
-#else  // _WIN64
-            wsprintf(descrBuf, SHEXREG_OPENSALAMANDER_DESCR, (regView & KEY_WOW64_64KEY) ? "x64" : "x86");
-#endif // _WIN64
             RegSetValueEx(hKey, shellExtIID, 0, REG_SZ, (BYTE*)descrBuf, lstrlen(descrBuf) + 1);
             NOHANDLES(RegCloseKey(hKey));
         }

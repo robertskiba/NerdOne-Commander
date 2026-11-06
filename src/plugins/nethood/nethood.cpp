@@ -98,8 +98,8 @@ CNethoodPluginInterface::LoadConfiguration(
     }
     else
     {
-        // Display My Network Places on Win2K/XP/2003 by default.
-        bDisplayShortcuts = (_winmajor == 5);
+        // My Network Places were displayed by default only on Win2K/XP/2003.
+        bDisplayShortcuts = FALSE;
     }
     g_oNethoodCache.SetDisplayNetworkShortcuts(bDisplayShortcuts);
 

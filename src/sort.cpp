@@ -19,7 +19,7 @@ int StrCmpLogicalEx(const char* s1, int l1, const char* s2, int l2, BOOL* numeri
     const char* end2 = s2;         // end of the segment (text or number)
     int suggestion = 0;            // suggested result (0 / -1 / 1 = nothing / s1<s2 / s1>s2) – e.g. "001" < "01"
 
-    BOOL findDots = WindowsVistaAndLater && !SystemPolicies.GetNoDotBreakInLogicalCompare(); // TRUE = names could also be separated by dots (not only numbers)
+    BOOL findDots = !SystemPolicies.GetNoDotBreakInLogicalCompare(); // TRUE = names could also be separated by dots (not only numbers)
 
     while (1)
     {

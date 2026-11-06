@@ -32,13 +32,6 @@ int DeltaForTotalCount(int total)
     return delta;
 }
 
-#ifndef _WIN64
-
-BOOL AddWin64RedirectedDir(const char* path, CFilesArray* dirs, WIN32_FIND_DATA* fileData,
-                           int* index, BOOL* dirWithSameNameExists); // is further in this module
-
-#endif // _WIN64
-
 #ifndef IO_REPARSE_TAG_FILE_PLACEHOLDER
 #define IO_REPARSE_TAG_FILE_PLACEHOLDER (0x80000015L) // winnt
 #endif                                                // IO_REPARSE_TAG_FILE_PLACEHOLDER
@@ -120,10 +113,6 @@ BOOL CFilesWindow::ReadDirectory(HWND parent, BOOL isRefresh)
         UseThumbnails = readThumbnails;
 
         SetCurrentDirectory(GetPath()); // so that it works better
-
-#ifndef _WIN64
-        BOOL isWindows64BitDir = Windows64Bit && WindowsDirectory[0] != 0 && IsTheSamePath(GetPath(), WindowsDirectory);
-#endif // _WIN64
 
         RefreshDiskFreeSpace(FALSE);
 
@@ -267,10 +256,6 @@ BOOL CFilesWindow::ReadDirectory(HWND parent, BOOL isRefresh)
         file.IconOverlayIndex = ICONOVERLAYINDEX_NOTUSED;
         file.IconOverlayDone = 0;
         int len;
-#ifndef _WIN64
-        int foundWin64RedirectedDirs = 0;
-        BOOL isWin64RedirectedDir = FALSE;
-#endif // _WIN64
 
     _TRY_AGAIN:
 
@@ -566,14 +551,7 @@ BOOL CFilesWindow::ReadDirectory(HWND parent, BOOL isRefresh)
                 {
                     file.Association = 0;
                     file.Archive = 0;
-#ifndef _WIN64
-                    file.IsLink = (isWin64RedirectedDir || (fileData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) || // CAUTION: pseudo-directories must have IsLink set; otherwise, ContainsWin64RedirectedDir must be changed
-                                   isWindows64BitDir && file.NameLen == 8 && StrICmp(file.Name, "system32") == 0)
-                                      ? 1
-                                      : 0; // system32 directory in 32-bit Salamander is link to SysWOW64 + win64 redirected-dir + volume mount point or junction point = show directory with link overlay
-#else                                      // _WIN64
                     file.IsLink = (fileData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) ? 1 : 0; // volume mount point or junction point = show directory with link overlay
-#endif                                     // _WIN64
                     if (len == 2 && *st == '.' && *(st + 1) == '.')
                     { // handling ".."
                         if (GetPath()[3] != 0)
@@ -590,11 +568,7 @@ BOOL CFilesWindow::ReadDirectory(HWND parent, BOOL isRefresh)
                     else
                     {
                         Dirs->Add(file);
-#ifndef _WIN64
-                        addtoIconCache = isWin64RedirectedDir ? FALSE : TRUE;
-#else  // _WIN64
                         addtoIconCache = TRUE;
-#endif // _WIN64
                     }
                     if (!Dirs->IsGood())
                     {
@@ -837,9 +811,6 @@ BOOL CFilesWindow::ReadDirectory(HWND parent, BOOL isRefresh)
                 if (search == NULL)
                 {
                     testFindNextErr = FALSE;
-#ifndef _WIN64
-                    isWin64RedirectedDir = FALSE;
-#endif                     // _WIN64
                     break; // second pass (adding ".." or the Win64-redirected directory)
                 }
             } while (FindNextFile(search, &fileData));
@@ -903,50 +874,6 @@ BOOL CFilesWindow::ReadDirectory(HWND parent, BOOL isRefresh)
             isUpDir = TRUE;
             goto ADD_ITEM;
         }
-
-#ifndef _WIN64
-
-    FIND_NEXT_WIN64_REDIRECTEDDIR:
-
-        BOOL dirWithSameNameExists;
-        if (foundWin64RedirectedDirs < 10 &&
-            AddWin64RedirectedDir(GetPath(), Dirs, &fileData, &foundWin64RedirectedDirs, &dirWithSameNameExists))
-        {
-            foundWin64RedirectedDirs++; // e.g. there can be 5 of them under system32; some reserve was added up to 10...
-
-            if (Configuration.NotHiddenSystemFiles &&
-                (fileData.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM)))
-            { // skip hidden directory
-                if (!dirWithSameNameExists)
-                {
-                    HiddenDirsCount++;
-                    HiddenDirsFilesReason |= HIDDEN_REASON_ATTRIBUTE;
-                }
-                goto FIND_NEXT_WIN64_REDIRECTEDDIR;
-            }
-
-            //--- if the name is already present in the HiddenNames array, we discard it
-            if (HiddenNames.Contains(TRUE, fileData.cFileName))
-            {
-                if (!dirWithSameNameExists)
-                {
-                    HiddenDirsCount++;
-                    HiddenDirsFilesReason |= HIDDEN_REASON_HIDECMD;
-                }
-                goto FIND_NEXT_WIN64_REDIRECTEDDIR;
-            }
-
-            isWin64RedirectedDir = TRUE;
-            search = NULL; // the second/third pass...
-            st = fileData.cFileName;
-            len = (int)strlen(st);
-            isUpDir = FALSE;
-            goto ADD_ITEM;
-        }
-        if (foundWin64RedirectedDirs >= 10)
-            TRACE_E("CFilesWindow::ReadDirectory(): foundWin64RedirectedDirs >= 10 (there are more redirected-dirs?)");
-
-#endif // _WIN64
 
         SetCurrentDirectoryToSystem();
 
@@ -1699,200 +1626,6 @@ void CFilesWindow::SortDirectory(CFilesArray* files, CFilesArray* dirs)
     VisibleItemsArraySurround.InvalidateArr();
 }
 
-#ifndef _WIN64
-
-BOOL IsWin64RedirectedDirAux(const char* subDir, const char* redirectedDir, const char* redirectedDirLastComp,
-                             char* winDir, char* winDirEnd, char** lastSubDir, BOOL failIfDirWithSameNameExists)
-{
-    if (IsTheSamePath(subDir, redirectedDir))
-    {
-        strcpy(winDirEnd, redirectedDir);
-
-        WIN32_FIND_DATA find;
-        HANDLE h;
-        if (failIfDirWithSameNameExists)
-        {
-            h = HANDLES_Q(FindFirstFile(winDir, &find));
-            if (h != INVALID_HANDLE_VALUE)
-            {
-                HANDLES(FindClose(h));
-                return FALSE; // this is not just a pseudo-directory; a directory with the same name exists there, which means that, for example, the context menu will work almost normally
-            }
-        }
-
-        strcat(winDirEnd, "\\*");
-        h = HANDLES_Q(FindFirstFile(winDir, &find));
-        if (h != INVALID_HANDLE_VALUE)
-        {
-            HANDLES(FindClose(h));
-            if (lastSubDir != NULL)
-            {
-                strcpy(*lastSubDir + 1, redirectedDirLastComp != NULL ? redirectedDirLastComp : redirectedDir);
-                *lastSubDir += strlen(*lastSubDir);
-            }
-            return TRUE;
-        }
-    }
-    return FALSE;
-}
-
-BOOL IsWin64RedirectedDir(const char* path, char** lastSubDir, BOOL failIfDirWithSameNameExists)
-{
-    if (Windows64Bit && WindowsDirectory[0] != 0)
-    {
-        char winDir[MAX_PATH];
-        strcpy(winDir, WindowsDirectory);
-        int len = (int)strlen(winDir);
-        if (len > 0 && winDir[len - 1] != '\\')
-            strcpy(winDir + len++, "\\");
-        if (StrNICmp(winDir, path, len) == 0)
-        {
-            const char* subDir = path + len;
-            if (IsWin64RedirectedDirAux(subDir, "Sysnative", NULL, winDir, winDir + len, lastSubDir, failIfDirWithSameNameExists) ||
-                IsWin64RedirectedDirAux(subDir, "system32\\catroot", "catroot", winDir, winDir + len, lastSubDir, failIfDirWithSameNameExists) ||
-                IsWin64RedirectedDirAux(subDir, "system32\\catroot2", "catroot2", winDir, winDir + len, lastSubDir, failIfDirWithSameNameExists) ||
-                Windows7AndLater && IsWin64RedirectedDirAux(subDir, "system32\\DriverStore", "DriverStore", winDir, winDir + len, lastSubDir, failIfDirWithSameNameExists) ||
-                IsWin64RedirectedDirAux(subDir, "system32\\drivers\\etc", "etc", winDir, winDir + len, lastSubDir, failIfDirWithSameNameExists) ||
-                IsWin64RedirectedDirAux(subDir, "system32\\LogFiles", "LogFiles", winDir, winDir + len, lastSubDir, failIfDirWithSameNameExists) ||
-                IsWin64RedirectedDirAux(subDir, "system32\\spool", "spool", winDir, winDir + len, lastSubDir, failIfDirWithSameNameExists))
-            {
-                return TRUE;
-            }
-        }
-    }
-    return FALSE;
-}
-
-BOOL ContainsWin64RedirectedDir(CFilesWindow* panel, int* indexes, int count, char* redirectedDir, BOOL onlyAdded)
-{
-    redirectedDir[0] = 0;
-    if (Windows64Bit && WindowsDirectory[0] != 0)
-    {
-        char path[MAX_PATH];
-        lstrcpyn(path, panel->GetPath(), MAX_PATH);
-        char* pathEnd = path + strlen(path);
-        int i;
-        for (i = 0; i < count; i++)
-        {
-            if (indexes[i] >= 0 && indexes[i] < panel->Dirs->Count) // only subdirectories matter
-            {
-                CFileData* dir = &panel->Dirs->At(indexes[i]);
-                if (dir->IsLink) // all pseudo-directories have IsLink set
-                {
-                    *pathEnd = 0;
-                    if (SalPathAppend(path, dir->Name, MAX_PATH) &&
-                        IsWin64RedirectedDir(path, NULL, onlyAdded))
-                    {
-                        lstrcpyn(redirectedDir, dir->Name, MAX_PATH);
-                        return TRUE;
-                    }
-                }
-            }
-        }
-    }
-    return FALSE;
-}
-
-BOOL AddWin64RedirectedDirAux(const char* path, const char* subDir, const char* redirectedDirPrefix,
-                              const char* redirectedDirLastComp, CFilesArray* dirs,
-                              WIN32_FIND_DATA* fileData, BOOL* dirWithSameNameExists)
-{
-    if (IsTheSamePath(subDir, redirectedDirPrefix))
-    {
-        int deleteIndex = -1;
-        int i;
-        for (i = 0; i < dirs->Count; i++)
-            if (StrICmp(dirs->At(i).Name, redirectedDirLastComp) == 0)
-            {
-                if (dirs->At(i).IsLink)
-                    return FALSE; // this redirected directory has already been added
-                deleteIndex = i;
-                break;
-            }
-
-        char findPath[MAX_PATH];
-        lstrcpyn(findPath, path, MAX_PATH);
-        if (SalPathAppend(findPath, redirectedDirLastComp, MAX_PATH) &&
-            SalPathAppend(findPath, "*", MAX_PATH))
-        {
-            HANDLE h;
-            h = HANDLES_Q(FindFirstFile(findPath, fileData)); // find-data for redirected-dir can be obtained from the "." directory in the listing of redirected-dir
-            if (h != INVALID_HANDLE_VALUE)
-            {
-                BOOL found = FALSE;
-                do
-                {
-                    if (strcmp(fileData->cFileName, "..") == 0 &&
-                        (fileData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0) // "." directory
-                    {
-                        found = TRUE;
-                        break;
-                    }
-                } while (FindNextFile(h, fileData));
-                HANDLES(FindClose(h));
-                if (found)
-                {
-                    if (deleteIndex != -1)
-                        dirs->Delete(deleteIndex); // there is a directory here, we will delete it; redirected-dir has priority (redirector ignores this directory)
-                    lstrcpyn(fileData->cFileName, redirectedDirLastComp, MAX_PATH);
-                    fileData->cAlternateFileName[0] = 0;
-
-                    if (CutDirectory(findPath)) // Check whether a directory with the same name as redirected-dir exists on disk (it may not be in the 'dirs' array, e.g. due to the "Hide Selected Names" command)
-                    {
-                        WIN32_FIND_DATA fd;
-                        h = HANDLES_Q(FindFirstFile(findPath, &fd));
-                        if (h != INVALID_HANDLE_VALUE)
-                        {
-                            HANDLES(FindClose(h));
-                            if ((fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0 &&
-                                StrICmp(fd.cFileName, redirectedDirLastComp) == 0)
-                            {
-                                *dirWithSameNameExists = TRUE;
-                            }
-                        }
-                    }
-
-                    return TRUE;
-                }
-            }
-        }
-    }
-    return FALSE;
-}
-
-BOOL AddWin64RedirectedDir(const char* path, CFilesArray* dirs, WIN32_FIND_DATA* fileData,
-                           int* index, BOOL* dirWithSameNameExists)
-{
-    *dirWithSameNameExists = FALSE;
-    if (Windows64Bit && WindowsDirectory[0] != 0)
-    {
-        char winDir[MAX_PATH];
-        strcpy(winDir, WindowsDirectory);
-        int len = (int)strlen(winDir);
-        if (len > 0 && winDir[len - 1] != '\\')
-            strcpy(winDir + len++, "\\");
-        if ((int)strlen(path) + 1 == len)
-            winDir[--len] = 0; // patch due to path == win-dir (discard ending backslash)
-        if (StrNICmp(winDir, path, len) == 0)
-        {
-            const char* subDir = path + len;
-            if (*index == 0 && AddWin64RedirectedDirAux(path, subDir, "", "Sysnative", dirs, fileData, dirWithSameNameExists) ||
-                *index == 0 && AddWin64RedirectedDirAux(path, subDir, "system32\\drivers", "etc", dirs, fileData, dirWithSameNameExists) ||
-                *index == 0 && AddWin64RedirectedDirAux(path, subDir, "system32", "catroot", dirs, fileData, dirWithSameNameExists) ||
-                *index <= 1 && AddWin64RedirectedDirAux(path, subDir, "system32", "catroot2", dirs, fileData, dirWithSameNameExists) && (*index = 1) != 0 ||
-                *index <= 2 && AddWin64RedirectedDirAux(path, subDir, "system32", "LogFiles", dirs, fileData, dirWithSameNameExists) && (*index = 2) != 0 ||
-                *index <= 3 && AddWin64RedirectedDirAux(path, subDir, "system32", "spool", dirs, fileData, dirWithSameNameExists) && (*index = 3) != 0 ||
-                Windows7AndLater && *index <= 4 && AddWin64RedirectedDirAux(path, subDir, "system32", "DriverStore", dirs, fileData, dirWithSameNameExists) && (*index = 4) != 0)
-            {
-                return TRUE;
-            }
-        }
-    }
-    return FALSE;
-}
-
-#endif // _WIN64
-
 BOOL CFilesWindow::ChangeDir(const char* newDir, int suggestedTopIndex, const char* suggestedFocusName,
                              int mode, int* failReason, BOOL convertFSPathToInternal, BOOL showNewDirPathInErrBoxes)
 {
@@ -2291,13 +2024,6 @@ CHANGE_AGAIN:
                                     s = NULL;
                                 }
                             }
-#ifndef _WIN64
-                            else
-                            {
-                                if (IsWin64RedirectedDir(copy, &st, FALSE))
-                                    continue;
-                            }
-#endif // _WIN64
                         }
 
                         if (h != INVALID_HANDLE_VALUE || pathEndsWithSpaceOrDot)

@@ -270,7 +270,7 @@ void CFilesWindow::PluginFSFilesAction(CPluginFSActionType type)
                     int res;
                     if (Configuration.CnfrmFileDirDel)
                     {                                                                                                           // ask only if the user wants it
-                        HICON hIcon = (HICON)HANDLES(LoadImage(Shell32DLL, MAKEINTRESOURCE(WindowsVistaAndLater ? 16777 : 161), // delete icon
+                        HICON hIcon = (HICON)HANDLES(LoadImage(Shell32DLL, MAKEINTRESOURCE(16777), // delete icon
                                                                IMAGE_ICON, 32, 32, IconLRFlags));
                         int myRes = CMessageBox(HWindow, MSGBOXEX_YESNO | MSGBOXEX_ESCAPEENABLED | MSGBOXEX_SILENT,
                                                 LoadStr(IDS_CONFIRM_DELETE_TITLE), &str, NULL,

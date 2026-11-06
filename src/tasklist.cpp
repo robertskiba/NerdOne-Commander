@@ -268,14 +268,11 @@ BOOL CTaskList::Init()
     SECURITY_ATTRIBUTES* saPtr = CreateAccessableSecurityAttributes(&sa, &sd, GENERIC_ALL, &psidEveryone, &paclNewDacl);
 
     //---  first, a side note: on Vista and later, create an event for communication with the copy hook (the control thread waits for it)
-    if (WindowsVistaAndLater)
-    {
-        SalShExtDoPasteEvent = NOHANDLES(CreateEvent(saPtr, TRUE, FALSE, SALSHEXT_DOPASTEEVENTNAME));
-        if (SalShExtDoPasteEvent == NULL)
-            SalShExtDoPasteEvent = NOHANDLES(OpenEvent(SYNCHRONIZE | EVENT_MODIFY_STATE, FALSE, SALSHEXT_DOPASTEEVENTNAME));
-        if (SalShExtDoPasteEvent == NULL)
-            TRACE_E("CTaskList::Init(): unable to create event object for communicating with copy-hook shell extension!");
-    }
+    SalShExtDoPasteEvent = NOHANDLES(CreateEvent(saPtr, TRUE, FALSE, SALSHEXT_DOPASTEEVENTNAME));
+    if (SalShExtDoPasteEvent == NULL)
+        SalShExtDoPasteEvent = NOHANDLES(OpenEvent(SYNCHRONIZE | EVENT_MODIFY_STATE, FALSE, SALSHEXT_DOPASTEEVENTNAME));
+    if (SalShExtDoPasteEvent == NULL)
+        TRACE_E("CTaskList::Init(): unable to create event object for communicating with copy-hook shell extension!");
 
     //---  try to attach to the FMO mutex - also serves as a test whether any Salamander is already running
     FMOMutex = NOHANDLES(OpenMutex(SYNCHRONIZE, FALSE, AS_PROCESSLIST_MUTEX_NAME));

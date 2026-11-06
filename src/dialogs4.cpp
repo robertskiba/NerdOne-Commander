@@ -547,10 +547,6 @@ CConfiguration::CConfiguration()
 
     EnableCustomIconOverlays = TRUE;
     DisabledCustomIconOverlays = NULL;
-
-#ifndef _WIN64
-    AddX86OnlyPlugins = FALSE; // FIXME_X64_WINSCP
-#endif                         // _WIN64
 }
 
 CConfiguration::~CConfiguration()
@@ -816,8 +812,7 @@ void CCfgPageGeneral::Transfer(CTransferInfo& ti)
     ti.CheckBox(IDC_QUICKRENAME_SELALL, Configuration.QuickRenameSelectAll);
     ti.CheckBox(IDC_EDITNEW_SELALL, Configuration.EditNewSelectAll);
     ti.CheckBox(IDC_NETWAREFASTDIRMOVE, Configuration.NetwareFastDirMove);
-    int dummy = 0;
-    ti.CheckBox(IDC_ASYNCCOPYALG, Windows7AndLater ? Configuration.UseAsyncCopyAlg : dummy);
+    ti.CheckBox(IDC_ASYNCCOPYALG, Configuration.UseAsyncCopyAlg);
     int oldReloadEnvVariables = Configuration.ReloadEnvVariables;
     ti.CheckBox(IDC_RELOADENVVARS, Configuration.ReloadEnvVariables);
     if (ti.Type == ttDataFromWindow && Configuration.ReloadEnvVariables && oldReloadEnvVariables != Configuration.ReloadEnvVariables)
@@ -833,7 +828,7 @@ void CCfgPageGeneral::EnableControls()
 {
     BOOL useTimeRes = IsDlgButtonChecked(HWindow, IDC_TIMERESOLUTION);
     EnableWindow(GetDlgItem(HWindow, IDE_TIMERESOLUTION), useTimeRes);
-    EnableWindow(GetDlgItem(HWindow, IDC_ASYNCCOPYALG), Windows7AndLater);
+    EnableWindow(GetDlgItem(HWindow, IDC_ASYNCCOPYALG), TRUE);
 }
 
 INT_PTR

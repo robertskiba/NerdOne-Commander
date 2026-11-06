@@ -1369,13 +1369,7 @@ extern int SPACE_WIDTH; // spacing between columns in detailed view
 //
 // ****************************************************************************
 
-// Windows XP, Windows 2003.NET, Vista, Windows 7, Windows 8, Windows 8.1, Windows 10
-extern BOOL WindowsXP64AndLater;  // Windows XP64 or later
-extern BOOL WindowsVistaAndLater; // Windows Vista or later
-extern BOOL Windows7AndLater;     // Windows 7 or later
-extern BOOL Windows8AndLater;     // Windows 8 or later
-extern BOOL Windows8_1AndLater;   // Windows 8.1 or later
-extern BOOL Windows10AndLater;    // Windows 10 or later
+// NOTE: Windows 10 or later is required, so there are no global "WindowsXXXAndLater" flags anymore
 
 extern BOOL Windows64Bit; // x64 version of Windows
 
@@ -2446,21 +2440,6 @@ BOOL GetOurPathInRoamingAPPDATA(char* buf);
 // if 'buf' is not NULL it is a buffer of size MAX_PATH that receives this path
 // NOTE: Vista+ only
 BOOL CreateOurPathInRoamingAPPDATA(char* buf);
-
-#ifndef _WIN64
-
-// 32-bit version on Win64 only: checks whether the path is redirected by the
-// file system redirector to SysWOW64 or back to System32
-BOOL IsWin64RedirectedDir(const char* path, char** lastSubDir, BOOL failIfDirWithSameNameExists);
-
-// 32-bit build on Win64 only: tests whether the selection contains a pseudo
-// directory that the redirector sends to SysWOW64 or back to System32 while no
-// real directory with the same name exists on disk (pseudo-directories are
-// added only via AddWin64RedirectedDir)
-BOOL ContainsWin64RedirectedDir(CFilesWindow* panel, int* indexes, int count, char* redirectedDir,
-                                BOOL onlyAdded);
-
-#endif // _WIN64
 
 // our variants of RegQueryValue and RegQueryValueEx add a null terminator for
 // REG_SZ, REG_MULTI_SZ and REG_EXPAND_SZ values unlike their API counterparts.

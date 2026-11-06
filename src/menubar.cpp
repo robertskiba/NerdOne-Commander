@@ -825,11 +825,7 @@ CMenuBar::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     case WM_ERASEBKGND:
     {
-        if (WindowsVistaAndLater) // On Vista, the rebar flickers
-            return TRUE;
-        RECT r;
-        GetClientRect(HWindow, &r);
-        FillRect((HDC)wParam, &r, HDialogBrush);
+        // On Vista, the rebar flickers, so the background is not erased here
         return TRUE;
     }
 

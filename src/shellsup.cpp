@@ -1615,10 +1615,6 @@ void ShellAction(CFilesWindow* panel, CShellAction action, BOOL useSelection,
         return; // Do not allow other panel types past this point.
     }
 
-#ifndef _WIN64
-    char redirectedDir[MAX_PATH];
-    char msg[300 + MAX_PATH];
-#endif // _WIN64
     switch (action)
     {
     case saPermissions:
@@ -1627,15 +1623,6 @@ void ShellAction(CFilesWindow* panel, CShellAction action, BOOL useSelection,
         CALL_STACK_MESSAGE1("ShellAction::properties");
         if (useSelection)
         {
-#ifndef _WIN64
-            if (ContainsWin64RedirectedDir(panel, (count == 0) ? &index : indexes, (count == 0) ? 1 : count, redirectedDir, TRUE))
-            {
-                _snprintf_s(msg, _TRUNCATE, LoadStr(IDS_ERROPENPROPSELCONTW64ALIAS), redirectedDir);
-                SalMessageBox(MainWindow->HWindow, msg, LoadStr(IDS_ERRORTITLE), MB_OK | MB_ICONEXCLAMATION);
-            }
-            else
-            {
-#endif // _WIN64
                 CTmpEnumData data;
                 data.Indexes = (count == 0) ? &index : indexes;
                 data.Panel = panel;
@@ -1665,9 +1652,6 @@ void ShellAction(CFilesWindow* panel, CShellAction action, BOOL useSelection,
 
                     AuxInvokeAndRelease(menu, (CMINVOKECOMMANDINFO*)&ici);
                 }
-#ifndef _WIN64
-            }
-#endif // _WIN64
         }
         break;
     }
@@ -1678,16 +1662,6 @@ void ShellAction(CFilesWindow* panel, CShellAction action, BOOL useSelection,
         CALL_STACK_MESSAGE1("ShellAction::copy_cut_clipboard");
         if (useSelection)
         {
-#ifndef _WIN64
-            if (action == saCutToClipboard &&
-                ContainsWin64RedirectedDir(panel, (count == 0) ? &index : indexes, (count == 0) ? 1 : count, redirectedDir, FALSE))
-            {
-                _snprintf_s(msg, _TRUNCATE, LoadStr(IDS_ERRCUTSELCONTW64ALIAS), redirectedDir);
-                SalMessageBox(MainWindow->HWindow, msg, LoadStr(IDS_ERRORTITLE), MB_OK | MB_ICONEXCLAMATION);
-            }
-            else
-            {
-#endif // _WIN64
                 CTmpEnumData data;
                 data.Indexes = (count == 0) ? &index : indexes;
                 data.Panel = panel;
@@ -1791,9 +1765,6 @@ void ShellAction(CFilesWindow* panel, CShellAction action, BOOL useSelection,
                     // we also set the preferred drop effect + origin from Salamander
                     SetClipCutCopyInfo(panel->HWindow, action == saCopyToClipboard, TRUE);
                 }
-#ifndef _WIN64
-            }
-#endif // _WIN64
         }
         break;
     }
@@ -1917,15 +1888,6 @@ void ShellAction(CFilesWindow* panel, CShellAction action, BOOL useSelection,
 
                 if (onlyPanelMenu)
                 {
-#ifndef _WIN64
-                    if (IsWin64RedirectedDir(panel->GetPath(), NULL, TRUE))
-                    {
-                        SalMessageBox(MainWindow->HWindow, LoadStr(IDS_ERROPENMENUFORW64ALIAS),
-                                      LoadStr(IDS_ERRORTITLE), MB_OK | MB_ICONEXCLAMATION);
-                    }
-                    else
-                    {
-#endif // _WIN64
                         panel->ContextMenu = CreateIContextMenu2(MainWindow->HWindow, panel->GetPath());
                         if (panel->ContextMenu != NULL && h != NULL)
                         {
@@ -1948,49 +1910,22 @@ void ShellAction(CFilesWindow* panel, CShellAction action, BOOL useSelection,
                         }
                         GetNewOrBackgroundMenu(MainWindow->HWindow, panel->GetPath(), panel->ContextSubmenuNew, 5000, 6000, TRUE);
                         uncRootPath = IsUNCRootPath(panel->GetPath());
-#ifndef _WIN64
-                    }
-#endif // _WIN64
                 }
                 else
                 {
                     if (useSelection)
                     {
-#ifndef _WIN64
-                        if (ContainsWin64RedirectedDir(panel, (count == 0) ? &index : indexes, (count == 0) ? 1 : count, redirectedDir, TRUE))
-                        {
-                            _snprintf_s(msg, _TRUNCATE, LoadStr(IDS_ERROPENMENUSELCONTW64ALIAS), redirectedDir);
-                            SalMessageBox(MainWindow->HWindow, msg, LoadStr(IDS_ERRORTITLE), MB_OK | MB_ICONEXCLAMATION);
-                        }
-                        else
-                        {
-#endif // _WIN64
                             CTmpEnumData data;
                             data.Indexes = (count == 0) ? &index : indexes;
                             data.Panel = panel;
                             panel->ContextMenu = CreateIContextMenu2(MainWindow->HWindow, panel->GetPath(), (count == 0) ? 1 : count,
                                                                      EnumFileNames, &data);
-#ifndef _WIN64
-                        }
-#endif // _WIN64
                     }
                     else
                     {
-#ifndef _WIN64
-                        if (IsWin64RedirectedDir(panel->GetPath(), NULL, TRUE))
-                        {
-                            SalMessageBox(MainWindow->HWindow, LoadStr(IDS_ERROPENMENUFORW64ALIAS),
-                                          LoadStr(IDS_ERRORTITLE), MB_OK | MB_ICONEXCLAMATION);
-                        }
-                        else
-                        {
-#endif // _WIN64
                             panel->ContextMenu = CreateIContextMenu2(MainWindow->HWindow, panel->GetPath());
                             GetNewOrBackgroundMenu(MainWindow->HWindow, panel->GetPath(), panel->ContextSubmenuNew, 5000, 6000, FALSE);
                             uncRootPath = IsUNCRootPath(panel->GetPath());
-#ifndef _WIN64
-                        }
-#endif // _WIN64
                     }
                 }
 
@@ -2203,8 +2138,7 @@ MENU_TEMPLATE_ITEM PanelBkgndMenu[] =
                         cmdDelete = useSelection && (cmd < 5000 && stricmp(cmdName, "delete") == 0);
 
                         // Map Network Drive command is 40 on XP, 43 on W2K, and only on Vista does it have a defined cmdName
-                        cmdMapNetDrv = uncRootPath && (stricmp(cmdName, "connectNetworkDrive") == 0 ||
-                                                       !WindowsVistaAndLater && cmd == 40);
+                        cmdMapNetDrv = uncRootPath && stricmp(cmdName, "connectNetworkDrive") == 0;
 
                         if (cmd != 10000 && cmd != 10001 && !clipCopy && !clipCut && !cmdDelete && !cmdMapNetDrv)
                         {
@@ -2561,7 +2495,7 @@ void ExecuteAssociation(HWND hWindow, const char* path, const char* name)
 BOOL CanUseShellExecuteWndAsParent(const char* cmdName)
 {
     // for Map Network Drive we cannot use shellExecuteWnd, otherwise it hangs (MainWindow->HWindow gets disabled and the Map Network Drive window does not open)
-    if (WindowsVistaAndLater && stricmp(cmdName, "connectNetworkDrive") == 0)
+    if (stricmp(cmdName, "connectNetworkDrive") == 0)
         return FALSE;
 
     // under Windows 8 Open With misbehaved – when selecting a custom program, the Open dialog did not appear
@@ -2571,7 +2505,7 @@ BOOL CanUseShellExecuteWndAsParent(const char* cmdName)
     // we would just have to verify before passing it that it still exists (no one destroyed it)
     // TODO2: I tried the idea and specifically under W8 with Open With it does not work; the Open dialog is not modal to our main window (or the Find window)
     // for now we will pass Salamander's main window in this case
-    if (Windows8AndLater && stricmp(cmdName, "openas") == 0)
+    if (stricmp(cmdName, "openas") == 0)
         return FALSE;
 
     // for the other cases (the majority) we can use ShellExecuteWnd

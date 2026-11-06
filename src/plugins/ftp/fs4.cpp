@@ -655,7 +655,7 @@ BOOL CPluginFSInterface::Delete(const char* fsName, int mode, HWND parent, int p
             HICON hIcon = NULL;
             if (Shell32DLL != NULL)
             {
-                hIcon = (HICON)HANDLES(LoadImage(Shell32DLL, MAKEINTRESOURCE(WindowsVistaAndLater ? 16777 : 161), // delete icon
+                hIcon = (HICON)HANDLES(LoadImage(Shell32DLL, MAKEINTRESOURCE(16777), // delete icon
                                                  IMAGE_ICON, 32, 32, SalamanderGeneral->GetIconLRFlags()));
                 HANDLES(FreeLibrary(Shell32DLL));
             }

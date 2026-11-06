@@ -77,8 +77,7 @@ void CSFVMD5Dialog::InitList(int columns[], int widths[], int numcols, SHashInfo
 #endif
     hList = GetDlgItem(HWindow, IDC_LIST_FILES);
     ListView_SetExtendedListViewStyleEx(hList, LVS_EX_FULLROWSELECT, LVS_EX_FULLROWSELECT);
-    if (SalIsWindowsVersionOrGreater(6, 0, 0)) // WindowsVistaAndLater: Vista and later (CommonControls 6.0+)
-        ListView_SetExtendedListViewStyleEx(hList, LVS_EX_DOUBLEBUFFER, LVS_EX_DOUBLEBUFFER);
+    ListView_SetExtendedListViewStyleEx(hList, LVS_EX_DOUBLEBUFFER, LVS_EX_DOUBLEBUFFER);
     ListView_SetImageList(hList, hImg, LVSIL_SMALL); // the imagelist takes care of destruction
 
     int j;
@@ -1159,18 +1158,14 @@ INT_PTR CCalculateDialog::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         HWND hProgress = GetDlgItem(HWindow, IDC_PROGRESS);
         SendMessage(hProgress, PBM_SETRANGE, 0, MAKELPARAM(0, 1024));
-        if (SalIsWindowsVersionOrGreater(6, 0, 0)) // WindowsVistaAndLater: Vista and later (CommonControls 6.0+)
-        {
-            LONG_PTR style = GetWindowLongPtr(hProgress, GWL_STYLE);
 #ifndef PBS_MARQUEE
 #define PBS_MARQUEE 0x08
 #endif
 #ifndef PBM_SETMARQUEE
 #define PBM_SETMARQUEE (WM_USER + 10)
 #endif
-            SetWindowLongPtr(hProgress, GWL_STYLE, style | PBS_MARQUEE);
-            SendMessage(hProgress, PBM_SETMARQUEE, TRUE, 50);
-        }
+        SetWindowLongPtr(hProgress, GWL_STYLE, GetWindowLongPtr(hProgress, GWL_STYLE) | PBS_MARQUEE);
+        SendMessage(hProgress, PBM_SETMARQUEE, TRUE, 50);
 
         CGUIHyperLinkAbstract* hl;
         hl = SalamanderGUI->AttachHyperLink(HWindow, IDC_LABEL_HINT, STF_DOTUNDERLINE);
@@ -1194,12 +1189,8 @@ INT_PTR CCalculateDialog::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
         ReadingDirectories = FALSE;
 
         HWND hProgress = GetDlgItem(HWindow, IDC_PROGRESS);
-        if (SalIsWindowsVersionOrGreater(6, 0, 0)) // WindowsVistaAndLater: Vista and later
-        {
-            SendMessage(hProgress, PBM_SETMARQUEE, FALSE, 0);
-            LONG_PTR style = GetWindowLongPtr(hProgress, GWL_STYLE);
-            SetWindowLongPtr(hProgress, GWL_STYLE, style & ~PBS_MARQUEE);
-        }
+        SendMessage(hProgress, PBM_SETMARQUEE, FALSE, 0);
+        SetWindowLongPtr(hProgress, GWL_STYLE, GetWindowLongPtr(hProgress, GWL_STYLE) & ~PBS_MARQUEE);
         SendMessage(hProgress, PBM_SETRANGE, 0, MAKELPARAM(0, 1024));
 
         BOOL startThread = FALSE;

@@ -1704,9 +1704,6 @@ CViewerWindow::GetSelectedText(BOOL& fatalErr)
     if (startSel == endSel)
         startSel = endSel = 0;
     BOOL lowMem = FALSE;
-#ifndef _WIN64
-    if (endSel - startSel < (unsigned __int64)0xFFFFFFFF) // we can at least try (the 32-bit version really cannot handle more than 4GB)
-#endif                                                    // _WIN64
     {
         HGLOBAL h = NOHANDLES(GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, (DWORD)(endSel - startSel + 1)));
         if (h != NULL)
@@ -1742,10 +1739,6 @@ CViewerWindow::GetSelectedText(BOOL& fatalErr)
         else
             lowMem = TRUE;
     }
-#ifndef _WIN64
-    else
-        lowMem = TRUE;
-#endif // _WIN64
     if (lowMem)
     {
         SalMessageBoxViewerPaintBlocked(HWindow, GetErrorText(ERROR_NOT_ENOUGH_MEMORY), LoadStr(IDS_ERRORTITLE),

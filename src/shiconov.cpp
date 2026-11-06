@@ -166,7 +166,7 @@ BOOL GetGoogleDrivePath(char* gdPath, int gdPathMax, CSQLite3DynLoadBase** sqlit
 
     if (!ret)
     {
-        if (SHGetFolderPath(NULL, WindowsVistaAndLater ? CSIDL_PROFILE : CSIDL_MYDOCUMENTS,
+        if (SHGetFolderPath(NULL, CSIDL_PROFILE,
                             NULL, 0 /* SHGFP_TYPE_CURRENT */, mbPath) == S_OK &&
             SalPathAppend(mbPath, "Google Drive", MAX_PATH) &&
             (int)strlen(mbPath) < gdPathMax)
@@ -962,13 +962,9 @@ void CShellIconOverlays::InitGoogleDrivePath(CSQLite3DynLoadBase** sqlite3_Dyn_I
         }
         if (!found)
         {
-            // Google Drive is installed in the variant matching Windows (x86 / x64). Therefore Salamander x86
-            // on x64 Windows (and vice versa) does not find GD icon handlers, and that is not an error.
-#ifdef _WIN64
+            // Google Drive is installed in the variant matching Windows (x86 / x64). Therefore Salamander x64
+            // on non-x64 Windows does not find GD icon handlers, and that is not an error.
             if (Windows64Bit)
-#else  // _WIN64
-            if (!Windows64Bit)
-#endif // _WIN64
             {
                 TRACE_E("Google Drive found but its icon overlay handlers were not found (not identified as GD)!");
             }

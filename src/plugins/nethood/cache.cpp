@@ -1696,14 +1696,10 @@ bool CNethoodCache::EnsureWtsApiInitialized()
     HMODULE hWtsApi32 = HANDLES(LoadLibrary(TEXT("wtsapi32.dll")));
     if (hWtsApi32 != NULL)
     {
-        m_pfnWTSRegisterSessionNotification = (PFN_WTSRegisterSessionNotification)
-            GetProcAddress(hWtsApi32, "WTSRegisterSessionNotification"); // Min: XP
-
-        m_pfnWTSUnRegisterSessionNotification = (PFN_WTSUnRegisterSessionNotification)
-            GetProcAddress(hWtsApi32, "WTSUnRegisterSessionNotification"); // Min: XP
-
-        m_pfnWTSGetActiveConsoleSessionId = (PFN_WTSGetActiveConsoleSessionId)
-            GetProcAddress(hWtsApi32, "WTSGetActiveConsoleSessionId"); // Min: XP
+        // available on every supported Windows version (WtsApi32.lib is linked)
+        m_pfnWTSRegisterSessionNotification = &::WTSRegisterSessionNotification;
+        m_pfnWTSUnRegisterSessionNotification = &::WTSUnRegisterSessionNotification;
+        m_pfnWTSGetActiveConsoleSessionId = &::WTSGetActiveConsoleSessionId; // kernel32
     }
 
     if (hWtsApi32 == NULL ||

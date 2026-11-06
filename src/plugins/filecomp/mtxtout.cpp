@@ -81,15 +81,12 @@ void TMappedTextOut<CChar>::FontHasChanged(LOGFONT* plf, HFONT font, int fontWid
     // XP64/Vista: the Fixedsys font contains characters that do not have the expected width (despite being fixed width), so
     // measure individual characters and map those with a wrong width to a replacement glyph of the proper width
     ViewerFontNeedsMapping = false;
-    if (WindowsXP64AndLater) // outside XP64 and Vista we never hit this quirk, so skip the expensive check
-    {
-        LPVOID pNewFont;
+    LPVOID pNewFont;
 
-        pNewFont = MappedFontFactory.FindFont(plf, font, (LPVOID*)&ViewerFontMapping, fontWidth, fontHeight, sizeof(CChar));
-        MappedFontFactory.ReleaseMappedFont(pMappedFont);
-        pMappedFont = pNewFont;
-        ViewerFontNeedsMapping = pMappedFont != NULL;
-    }
+    pNewFont = MappedFontFactory.FindFont(plf, font, (LPVOID*)&ViewerFontMapping, fontWidth, fontHeight, sizeof(CChar));
+    MappedFontFactory.ReleaseMappedFont(pMappedFont);
+    pMappedFont = pNewFont;
+    ViewerFontNeedsMapping = pMappedFont != NULL;
 }
 
 template <class CChar>

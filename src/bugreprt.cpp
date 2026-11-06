@@ -373,7 +373,6 @@ public:
 #define VER_SUITE_STORAGE_SERVER 0x00002000
 #define VER_SUITE_WH_SERVER 0x00008000
 
-typedef void(WINAPI* PGNSI)(LPSYSTEM_INFO);
 #define BUFSIZE 80
 #define SM_SERVERR2 89
 
@@ -382,8 +381,6 @@ BOOL PrintSystemVersion(FPrintLine PrintLine, void* param, char* buf, char* avbu
     static OSVERSIONINFOEX osvi;
     static SYSTEM_INFO si;
     static BOOL bOsVersionInfoEx;
-    static PGNSI pGNSI;
-    pGNSI = NULL;
 
     PrintLine(param, "System Version:", FALSE);
 
@@ -423,20 +420,15 @@ BOOL PrintSystemVersion(FPrintLine PrintLine, void* param, char* buf, char* avbu
             osvi.wServicePackMinor, osvi.wSuiteMask, osvi.wProductType, osvi.dwPlatformId);
     PrintLine(param, buf, TRUE);
 
-    // Call GetNativeSystemInfo if supported or GetSystemInfo otherwise.
-    pGNSI = (PGNSI)GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")), "GetNativeSystemInfo"); // Min: XP
-    if (pGNSI != NULL)
-    {
-        pGNSI(&si);
-        sprintf(buf, "GetNativeSystemInfo architecture ");
-        if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
-            sprintf(buf + strlen(buf), "64-bit (x64)");
-        else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
-            sprintf(buf + strlen(buf), "32-bit (x86)");
-        else
-            sprintf(buf + strlen(buf), "%d (unknown)", si.wProcessorArchitecture);
-        PrintLine(param, buf, TRUE);
-    }
+    GetNativeSystemInfo(&si);
+    sprintf(buf, "GetNativeSystemInfo architecture ");
+    if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
+        sprintf(buf + strlen(buf), "64-bit (x64)");
+    else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
+        sprintf(buf + strlen(buf), "32-bit (x86)");
+    else
+        sprintf(buf + strlen(buf), "%d (unknown)", si.wProcessorArchitecture);
+    PrintLine(param, buf, TRUE);
 
     GetSystemDirectory(avbuf, MAX_PATH);
     sprintf(buf, "System directory: %s", avbuf);
@@ -727,7 +719,6 @@ void CCallStack::PrintBugReport(EXCEPTION_POINTERS* Exception, DWORD ThreadID, D
     }
 #endif // CALLSTK_DISABLE
 
-#ifdef _WIN64
     __try
     {
         // output available registers and, if that doesn't throw an exception, also the stack
@@ -874,154 +865,6 @@ void CCallStack::PrintBugReport(EXCEPTION_POINTERS* Exception, DWORD ThreadID, D
         PrintLine(param, buf, TRUE);
         PrintLine(param, "", FALSE);
     }
-#else          // _WIN64
-    __try
-    {
-        // output available registers and, if that doesn't throw an exception, also the stack
-        if (Exception != NULL && Exception->ContextRecord != NULL)
-        {
-            static DWORD pointersForDump[32 + 64 + 8 + 8]; // stack, eax, ebx, ecx, edx, esi, edi, ebp, eip ;;; esp-32, esp-28, ... esp-4
-            ZeroMemory(&pointersForDump, sizeof(pointersForDump));
-            PrintLine(param, "Registers:", FALSE);
-            PCONTEXT ctxtRec = Exception->ContextRecord;
-            DWORD idx = 32 + 64;
-            if (ctxtRec->ContextFlags & CONTEXT_INTEGER)
-            {
-                sprintf(buf, "EAX = 0x%p  EBX = 0x%p", (void*)ctxtRec->Eax, (void*)ctxtRec->Ebx);
-                PrintLine(param, buf, TRUE);
-                sprintf(buf, "ECX = 0x%p  EDX = 0x%p", (void*)ctxtRec->Ecx, (void*)ctxtRec->Edx);
-                PrintLine(param, buf, TRUE);
-                sprintf(buf, "ESI = 0x%p  EDI = 0x%p", (void*)ctxtRec->Esi, (void*)ctxtRec->Edi);
-                PrintLine(param, buf, TRUE);
-                pointersForDump[idx++] = ctxtRec->Eax;
-                pointersForDump[idx++] = ctxtRec->Ebx;
-                pointersForDump[idx++] = ctxtRec->Ecx;
-                pointersForDump[idx++] = ctxtRec->Edx;
-                pointersForDump[idx++] = ctxtRec->Esi;
-                pointersForDump[idx++] = ctxtRec->Edi;
-                pointersForDump[idx++] = ctxtRec->Ebp;
-                pointersForDump[idx++] = ctxtRec->Eip;
-            }
-            if (ctxtRec->ContextFlags & CONTEXT_CONTROL)
-            {
-                int jj;
-                for (jj = 8; jj > 0; jj--)
-                    pointersForDump[idx++] = ctxtRec->Esp - jj * 4;
-                sprintf(buf, "EIP = 0x%p  ESP = 0x%p", (void*)ctxtRec->Eip, (void*)ctxtRec->Esp);
-                PrintLine(param, buf, TRUE);
-                sprintf(buf, "EBP = 0x%p  EFL = 0x%X", (void*)ctxtRec->Ebp, ctxtRec->EFlags);
-                PrintLine(param, buf, TRUE);
-            }
-            PrintLine(param, "", FALSE);
-#ifndef _DEBUG // to prevent stopping the debugger in debug builds
-            if (ctxtRec->ContextFlags & CONTEXT_CONTROL)
-            {
-                DWORD* esp = (DWORD*)ctxtRec->Esp;
-                int i = 0;
-                int validStackCount = 0;
-                while (i < 32 + 64)
-                {
-                    // esp may point somewhere invalid - prepare for it
-                    __try
-                    {
-                        pointersForDump[i] = *(esp + i);
-                        i++;
-                        validStackCount++;
-                    }
-                    __except (EXCEPTION_EXECUTE_HANDLER)
-                    {
-                        i = 32 + 64; // exit
-                    }
-                }
-
-                i = 32 + 64 + 8;
-                int jj = 0;
-                int validStackCount2 = 32 + 64 + 8;
-                while (i < 32 + 64 + 8 + 8)
-                {
-                    // esp may point somewhere invalid - prepare for it
-                    __try
-                    {
-                        pointersForDump[i] = *(esp - 8 + jj);
-                        i++;
-                        jj++;
-                        validStackCount2++;
-                    }
-                    __except (EXCEPTION_EXECUTE_HANDLER)
-                    {
-                        i = 32 + 64 + 8 + 8; // exit
-                    }
-                }
-
-                PrintLine(param, "Stack & Memory Dump:", FALSE);
-                i = 0;
-                while (i < 32 + 64 + 8 + 8)
-                {
-                    if (i < 32 + 64 && i < validStackCount || i >= 32 + 64 && i < validStackCount2)
-                    {
-                        if (i == 32 + 64)
-                            PrintLine(param, "---- EAX, EBX, ECX, EDX, ESI, EDI, EBP, EIP:", TRUE);
-                        if (i == 32 + 64 + 8)
-                            PrintLine(param, "---- ESP-32, ESP-28, ESP-24, ESP-20, ESP-16, ESP-12, ESP-8, ESP-4:", TRUE);
-                        __try
-                        {
-                            if (i < 32 || i >= 32 + 64)
-                            {
-                                buf[0] = 0;
-                                sprintf(buf, "%p: ", (void*)pointersForDump[i]);
-                                BYTE* iterator = (BYTE*)(pointersForDump[i]);
-                                int j = 0;
-                                while (j < 28)
-                                {
-                                    // spaces waste space; disable them and rather append the values
-                                    //                if (j > 0)
-                                    //                  lstrcat(buf, " ");
-                                    __try
-                                    {
-                                        sprintf(buf + lstrlen(buf), "%02X", *(iterator + j));
-                                        j++;
-                                    }
-                                    __except (EXCEPTION_EXECUTE_HANDLER)
-                                    {
-                                        lstrcat(buf, "(exception)");
-                                        j = 28;
-                                    }
-                                }
-                                PrintLine(param, buf, TRUE);
-                                i++;
-                            }
-                            else
-                            {
-                                if (i + 4 < validStackCount)
-                                {
-                                    sprintf(buf, "%p  %p  %p  %p", (void*)pointersForDump[i], (void*)pointersForDump[i + 1],
-                                            (void*)pointersForDump[i + 2], (void*)pointersForDump[3 + i]);
-                                    PrintLine(param, buf, TRUE);
-                                }
-                                i += 4;
-                            }
-                        }
-                        __except (EXCEPTION_EXECUTE_HANDLER)
-                        {
-                            PrintLine(param, "(exception)", TRUE);
-                            i = 32 + 64 + 8 + 8; // exit
-                        }
-                    }
-                    else
-                        i++;
-                }
-                PrintLine(param, "", FALSE);
-            }
-#endif         //_DEBUG  // to prevent stopping the debugger in debug builds
-        }
-    }
-    __except (EXCEPTION_EXECUTE_HANDLER)
-    {
-        sprintf(buf, "some exception has occured...");
-        PrintLine(param, buf, TRUE);
-        PrintLine(param, "", FALSE);
-    }
-#endif         // _WIN64
 
     __try
     {
@@ -2111,7 +1954,6 @@ void CCallStack::PrintBugReport(EXCEPTION_POINTERS* Exception, DWORD ThreadID, D
                                 ctx.ContextFlags = CONTEXT_SEGMENTS | CONTEXT_INTEGER | CONTEXT_CONTROL;
                             if (threadWithException || GetThreadContext(hThread, &ctx))
                             {
-#ifdef _WIN64
                                 BOOL firstPc = TRUE;
                                 // Unwind until IP is 0, sp is at the stack top, and callee IP is in kernel32.
                                 while (TRUE)
@@ -2219,7 +2061,6 @@ void CCallStack::PrintBugReport(EXCEPTION_POINTERS* Exception, DWORD ThreadID, D
                                 {
                                     PrintLine(param, "(exception)", TRUE);
                                 }
-#endif // _WIN64
                             }
                             if (stack->ThreadID != GetCurrentThreadId())
                                 ResumeThread(hThread);
@@ -2256,7 +2097,6 @@ void CCallStack::PrintBugReport(EXCEPTION_POINTERS* Exception, DWORD ThreadID, D
                     memcpy(&ctx, Exception->ContextRecord, sizeof(ctx));
                     if (TRUE)
                     {
-#ifdef _WIN64
                         BOOL firstPc = TRUE;
                         // Unwind until IP is 0, sp is at the stack top, and callee IP is in kernel32.
                         while (TRUE)
@@ -2364,7 +2204,6 @@ void CCallStack::PrintBugReport(EXCEPTION_POINTERS* Exception, DWORD ThreadID, D
                         {
                             PrintLine(param, "(exception)", TRUE);
                         }
-#endif // _WIN64
                     }
                 }
             }

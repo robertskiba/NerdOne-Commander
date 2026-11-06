@@ -35,21 +35,13 @@ void GotoEditor(const char* fileName, int row)
     if (mailSlot != INVALID_HANDLE_VALUE)
     {
         // allow SetForegroundWindow so MSVC can take focus
-        HMODULE USER32DLL = LoadLibrary("user32.dll");
-        if (USER32DLL != NULL)
+        HWND hwnd = NULL;
+        EnumWindows(FindMSVCEnumWindowsProc, (LPARAM)&hwnd);
+        if (hwnd != NULL)
         {
-            typedef BOOL(WINAPI * FAllowSetForegroundWindow)(DWORD dwProcessId);
-            FAllowSetForegroundWindow allowSetForegroundWindow = (FAllowSetForegroundWindow)GetProcAddress(USER32DLL, "AllowSetForegroundWindow");
-            if (allowSetForegroundWindow != NULL)
-            {
-                HWND hwnd = NULL;
-                EnumWindows(FindMSVCEnumWindowsProc, (LPARAM)&hwnd);
-                DWORD MSVC_PID;
-                if (hwnd != NULL)
-                    GetWindowThreadProcessId(hwnd, &MSVC_PID);
-                allowSetForegroundWindow(MSVC_PID);
-            }
-            FreeLibrary(USER32DLL);
+            DWORD MSVC_PID;
+            GetWindowThreadProcessId(hwnd, &MSVC_PID);
+            AllowSetForegroundWindow(MSVC_PID);
         }
 
         COpenEditPacket packet; // packet with information for the server

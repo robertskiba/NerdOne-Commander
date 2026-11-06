@@ -4848,8 +4848,7 @@ void CSalamanderGeneral::OpenNetworkContextMenu(HWND parent, int panel, BOOL for
                         cmdName[0] = 0;
 
                     // the Map Network Drive command is 40 on XP, 43 on W2K, and only under Vista has a defined cmdName
-                    if ((stricmp(cmdName, "connectNetworkDrive") == 0 ||
-                         !WindowsVistaAndLater && cmd == 40) &&
+                    if (stricmp(cmdName, "connectNetworkDrive") == 0 &&
                         forItems && netPath[2] != 0)
                     {
                         char root[MAX_PATH];

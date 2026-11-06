@@ -12,13 +12,6 @@
 //
 //  Global variables
 //
-static BOOL OSVersionDetected = FALSE;
-BOOL IsWindowsNT = FALSE;
-BOOL IsWindows2000AndLater = FALSE;
-BOOL IsWindows95 = FALSE;
-BOOL IsWindows95OSR2AndLater = FALSE;
-BOOL IsWindowsVistaAndLater = FALSE;
-
 static HMODULE KernelModule = NULL;
 static HINSTANCE NTShell32DLLInstance = NULL;
 
@@ -43,34 +36,6 @@ HMODULE OS<char>::ImageResDLL = NULL;
 //
 //  Functions
 //
-BOOL OS_InitOSVersion()
-{
-    if (!OSVersionDetected)
-    {
-        OSVersionDetected = TRUE;
-
-        // To run under W9x we must use the A-version of GetVersionEx().
-        OSVERSIONINFOA osvi;
-        ZeroMemory(&osvi, sizeof(osvi));
-        osvi.dwOSVersionInfoSize = sizeof(osvi);
-        if (!GetVersionExA(&osvi))
-        {
-            DWORD err = GetLastError();
-            TRACE_E("GetVersionEx() failed, GetLastError()=" << err);
-            return FALSE;
-        }
-        IsWindowsNT = (osvi.dwPlatformId == VER_PLATFORM_WIN32_NT);
-        IsWindows2000AndLater = (osvi.dwPlatformId == VER_PLATFORM_WIN32_NT && osvi.dwMajorVersion >= 5);
-        IsWindows95 = (osvi.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS &&
-                       osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 0);
-        IsWindows95OSR2AndLater = (osvi.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS &&
-                                       (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 0 && LOWORD(osvi.dwBuildNumber) > 1080) || // W95OSR2
-                                   (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion >= 1));                                           // W98 a WinME
-        IsWindowsVistaAndLater = (osvi.dwPlatformId == VER_PLATFORM_WIN32_NT && osvi.dwMajorVersion >= 6);
-    }
-    return TRUE;
-}
-
 // ***************************************************************************
 //
 //  Explicitly instantiated template methods

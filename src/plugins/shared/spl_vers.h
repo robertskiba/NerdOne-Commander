@@ -43,11 +43,7 @@
 #endif
 #endif
 
-#ifdef _WIN64
-#define SAL_VER_PLATFORM "x64"
-#else // _WIN64
-#define SAL_VER_PLATFORM "x86"
-#endif // _WIN64
+#define SAL_VER_PLATFORM "x64" // NerdOne Commander is x64 only
 
 // VERSINFO_BUILDNUMBER:
 //

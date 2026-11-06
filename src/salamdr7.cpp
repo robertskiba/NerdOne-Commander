@@ -294,11 +294,6 @@ void CEnvVariables::ApplyDifferencesToCurrentProcess(CEnvVariables* diffVars)
         if (FindItemIndex(var->Name) == -1)
             SetEnvironmentVariable(var->Name, var->Type == ENVVARTYPE_ADD ? var->Value : NULL);
     }
-#ifndef _WIN64
-    // HACK: we work around a bug that Microsoft introduced and has not yet fixed (according to a statement on the web)
-    // it occurs for x86 processes running on x64 Windows where the reload incorrectly sets the value to AMD64
-    SetEnvironmentVariable("PROCESSOR_ARCHITECTURE", "x86");
-#endif // _WIN64
 }
 
 CEnvVariables EnvVariablesDiff;

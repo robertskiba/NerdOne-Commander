@@ -137,13 +137,6 @@ int DecimalSeparatorLen = 1;    // length in characters, excluding the terminati
 char ThousandsSeparator[5] = " ";
 int ThousandsSeparatorLen = 1;
 
-BOOL WindowsXP64AndLater = FALSE;  // JRYFIXME - remove
-BOOL WindowsVistaAndLater = FALSE; // JRYFIXME - remove this
-BOOL Windows7AndLater = FALSE;     // JRYFIXME - remove
-BOOL Windows8AndLater = FALSE;
-BOOL Windows8_1AndLater = FALSE;
-BOOL Windows10AndLater = FALSE;
-
 BOOL Windows64Bit = FALSE;
 
 BOOL RunningAsAdmin = FALSE;
@@ -2160,12 +2153,9 @@ BOOL InitializeGraphics(BOOL colorsOnly)
         }
         else
         {
-            if (WindowsVistaAndLater)
-            {
-                // In Vista this key simply does not exist, and I still do not know what replaced it,
-                // so we will assume the icons use full color (otherwise we were showing ugly 16-color icons)
-                iconColorsCount = 32;
-            }
+            // In Vista this key simply does not exist, and I still do not know what replaced it,
+            // so we will assume the icons use full color (otherwise we were showing ugly 16-color icons)
+            iconColorsCount = 32;
         }
 
         if (iconColorsCount > bpp)
@@ -3097,16 +3087,9 @@ void CMessagesKeeper::Print(char* buffer, int buffMax, int index)
 
 CMessagesKeeper MessagesKeeper;
 
-typedef VOID(WINAPI* FDisableProcessWindowsGhosting)(VOID);
-
 void TurnOFFWindowGhosting() // If "ghosting" is not disabled, the safe-wait windows are hidden after the application has been in a "not responding" state for five seconds (when it is not processing messages)
 {
-    if (User32DLL != NULL)
-    {
-        FDisableProcessWindowsGhosting disableProcessWindowsGhosting = (FDisableProcessWindowsGhosting)GetProcAddress(User32DLL, "DisableProcessWindowsGhosting"); // Min: XP
-        if (disableProcessWindowsGhosting != NULL)
-            disableProcessWindowsGhosting();
-    }
+    DisableProcessWindowsGhosting();
 }
 
 //
@@ -3630,24 +3613,19 @@ int WinMainBody(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR cmdLine,
     GetSystemInfo(&si);
     AllocationGranularity = si.dwAllocationGranularity;
 
-    // Windows Versions supported by Open Salamander
+    // Windows versions supported by NerdOne Commander (x64 only)
     //
     // Name               wMajorVersion  wMinorVersion
     //------------------------------------------------
-    // Windows XP         5              1
-    // Windows XP x64     5              2
-    // Windows Vista      6              0
-    // Windows 7          6              1
-    // Windows 8          6              2
-    // Windows 8.1        6              3
-    // Windows 10         10             0             (note: preview builds of W10 from 2014 reported version 6.4)
+    // Windows 10         10             0
+    // Windows 11         10             0             (build 22000 and later)
 
-    if (!SalIsWindowsVersionOrGreater(6, 1, 0))
+    if (!SalIsWindowsVersionOrGreater(10, 0, 0))
     {
         // We will probably never get here; on older systems, exports from statically linked
         // libraries will be missing and the user will get some incomprehensible PE-loader-level error in Windows.
         // Do not call SalMessageBox.
-        MessageBox(NULL, "You need at least Windows 7 to run this program.",
+        MessageBox(NULL, "You need at least Windows 10 to run this program.",
                    SALAMANDER_TEXT_VERSION, MB_OK | MB_ICONEXCLAMATION);
     EXIT_1:
         if (User32DLL != NULL)
@@ -3663,36 +3641,22 @@ int WinMainBody(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR cmdLine,
         return myExitCode;
     }
 
-    WindowsVistaAndLater = SalIsWindowsVersionOrGreater(6, 0, 0);
-    WindowsXP64AndLater = SalIsWindowsVersionOrGreater(5, 2, 0);
-    Windows7AndLater = SalIsWindowsVersionOrGreater(6, 1, 0);
-    Windows8AndLater = SalIsWindowsVersionOrGreater(6, 2, 0);
-    Windows8_1AndLater = SalIsWindowsVersionOrGreater(6, 3, 0);
-    Windows10AndLater = SalIsWindowsVersionOrGreater(10, 0, 0);
-
     DWORD integrityLevel;
     if (GetProcessIntegrityLevel(&integrityLevel) && integrityLevel >= SECURITY_MANDATORY_HIGH_RID)
         RunningAsAdmin = TRUE;
 
-    // If possible, use GetNativeSystemInfo; otherwise keep the result from GetSystemInfo.
-    typedef void(WINAPI * PGNSI)(LPSYSTEM_INFO);
-    PGNSI pGNSI = (PGNSI)GetProcAddress(GetModuleHandle("kernel32.dll"), "GetNativeSystemInfo"); // Min: XP
-    if (pGNSI != NULL)
-        pGNSI(&si);
+    GetNativeSystemInfo(&si);
     Windows64Bit = si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64;
 
     if (!GetWindowsDirectory(WindowsDirectory, MAX_PATH))
         WindowsDirectory[0] = 0;
 
     // We care about the ITaskbarList3 interface, introduced by Microsoft in Windows 7, for example taskbar button progress.
-    if (Windows7AndLater)
+    TaskbarBtnCreatedMsg = RegisterWindowMessage("TaskbarButtonCreated");
+    if (TaskbarBtnCreatedMsg == 0)
     {
-        TaskbarBtnCreatedMsg = RegisterWindowMessage("TaskbarButtonCreated");
-        if (TaskbarBtnCreatedMsg == 0)
-        {
-            DWORD err = GetLastError();
-            TRACE_E("RegisterWindowMessage() failed for 'TaskbarButtonCreated'. Error:" << err);
-        }
+        DWORD err = GetLastError();
+        TRACE_E("RegisterWindowMessage() failed for 'TaskbarButtonCreated'. Error:" << err);
     }
 
     // The global variables are set, so we can initialize this mutex.
@@ -4111,27 +4075,12 @@ FIND_NEW_SLG_FILE:
     char* shellExtPathSlash = strrchr(shellExtPath, '\\');
     if (shellExtPathSlash != NULL)
     {
-        strcpy(shellExtPathSlash + 1, "utils\\salextx86.dll");
-#ifdef _WIN64
-        if (FileExists(shellExtPath))
-            SalShExtRegistered = SECRegisterToRegistry(shellExtPath, TRUE, KEY_WOW64_32KEY);
+        // x64 only: the 32-bit shell extension (salextx86.dll) is no longer built
         strcpy(shellExtPathSlash + 1, "utils\\salextx64.dll");
         if (FileExists(shellExtPath))
-            SalShExtRegistered &= SECRegisterToRegistry(shellExtPath, FALSE, 0);
+            SalShExtRegistered = SECRegisterToRegistry(shellExtPath, FALSE, 0);
         else
             SalShExtRegistered = FALSE;
-#else  // _WIN64
-        if (FileExists(shellExtPath))
-            SalShExtRegistered = SECRegisterToRegistry(shellExtPath, FALSE, 0);
-        if (Windows64Bit)
-        {
-            strcpy(shellExtPathSlash + 1, "utils\\salextx64.dll");
-            if (FileExists(shellExtPath))
-                SalShExtRegistered &= SECRegisterToRegistry(shellExtPath, TRUE, KEY_WOW64_64KEY);
-            else
-                SalShExtRegistered = FALSE;
-        }
-#endif // _WIN64
     }
 
     //--- create the main window
@@ -4231,8 +4180,7 @@ FIND_NEW_SLG_FILE:
                     if (!importCfgFromFileWasSkipped) // Only if the application does not exit immediately; otherwise this is pointless.
                         MainWindow->ApplyCommandLineParams(&cmdLineParams, setActivePanelAndPanelPaths);
 
-                    if (Windows7AndLater)
-                        CreateJumpList();
+                    CreateJumpList();
 
                     IdleRefreshStates = TRUE;  // Force a check of the state variables on the next idle cycle.
                     IdleCheckClipboard = TRUE; // also request checking the clipboard
@@ -4253,15 +4201,8 @@ FIND_NEW_SLG_FILE:
                     }
                     else
                     {
-                        if (Configuration.ConfigVersion < THIS_CONFIG_VERSION
-#ifndef _WIN64 // FIXME_X64_WINSCP
-                            || Configuration.AddX86OnlyPlugins
-#endif // _WIN64
-                        )
-                        {                                            // auto-install plug-ins from the standard "plugins" plug-in subdirectory
-#ifndef _WIN64                                                       // FIXME_X64_WINSCP
-                            Configuration.AddX86OnlyPlugins = FALSE; // only need to do this once
-#endif                                                               // _WIN64
+                        if (Configuration.ConfigVersion < THIS_CONFIG_VERSION)
+                        { // auto-install plug-ins from the standard "plugins" plug-in subdirectory
                             Plugins.AutoInstallStdPluginsDir(MainWindow->HWindow);
                             Configuration.LastPluginVer = 0;   // when upgrading to a new version, the plugins.ver file will also be removed for the other platform
                             Configuration.LastPluginVerOP = 0; // when upgrading to a new version, the plugins.ver file will also be removed for the other platform

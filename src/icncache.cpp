@@ -1312,7 +1312,7 @@ void CAssociations::ReadAssociations(BOOL showWaitWnd)
 
                     int index;
                     BOOL found = GetIndex(e, index);
-                    if (WindowsVistaAndLater && HANDLES_Q(RegOpenKey(extKey, "UserChoice", &openKey)) == ERROR_SUCCESS)
+                    if (HANDLES_Q(RegOpenKey(extKey, "UserChoice", &openKey)) == ERROR_SUCCESS)
                     {                    // try whether it is associated through the UserChoice key; if so, it is the highest-priority record, so overwrite any association already found
                         size = MAX_PATH; // get the association type
                         if (SalRegQueryValueEx(openKey, "Progid", NULL, NULL, (BYTE*)extType, (DWORD*)&size) == ERROR_SUCCESS && size > 1)
@@ -1329,7 +1329,7 @@ void CAssociations::ReadAssociations(BOOL showWaitWnd)
                     }
                     if (!found) // Check whether it is associated through the OpenWithProgids key
                     {
-                        if (WindowsVistaAndLater && HANDLES_Q(RegOpenKey(extKey, "OpenWithProgids", &openKey)) == ERROR_SUCCESS)
+                        if (HANDLES_Q(RegOpenKey(extKey, "OpenWithProgids", &openKey)) == ERROR_SUCCESS)
                         {
                             DWORD j = 0;
                             size = MAX_PATH; // get the association type

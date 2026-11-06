@@ -630,7 +630,7 @@ void CMenuPopup::DrawCheckBitmap(HDC hDC, CMenuItem* item, int yOffset, BOOL sel
             if (!monoBitmap)
             {
                 // if the bitmap is not monochrome, create a mask from it
-                SetBkColor(SharedRes->HTempMemDC, WindowsVistaAndLater ? RGB(0, 0, 0) : RGB(255, 255, 255)); // since Vista, the mask needs black, otherwise DiffMerge and BeyondCompare icons misbehaved in the context menu
+                SetBkColor(SharedRes->HTempMemDC, RGB(0, 0, 0)); // since Vista, the mask needs black, otherwise DiffMerge and BeyondCompare icons misbehaved in the context menu
                 BitBlt(SharedRes->MonoBitmap->HMemDC, 0, 0, bmpW, bmpH,
                        SharedRes->HTempMemDC, 0, 0, SRCCOPY);
                 // and then redirect it as the input
@@ -662,7 +662,7 @@ void CMenuPopup::DrawCheckBitmap(HDC hDC, CMenuItem* item, int yOffset, BOOL sel
 
             HBITMAP hOldBitmap = (HBITMAP)SelectObject(SharedRes->HTempMemDC, hBitmap);
             // prepare the mask
-            SetBkColor(SharedRes->HTempMemDC, WindowsVistaAndLater ? RGB(0, 0, 0) : RGB(255, 255, 255)); // since Vista, the mask needs black, otherwise DiffMerge and BeyondCompare icons misbehaved in the context menu
+            SetBkColor(SharedRes->HTempMemDC, RGB(0, 0, 0)); // since Vista, the mask needs black, otherwise DiffMerge and BeyondCompare icons misbehaved in the context menu
             BitBlt(SharedRes->MonoBitmap->HMemDC, 0, 0, bmpW, bmpH,
                    SharedRes->HTempMemDC, bmpX, 0, SRCCOPY);
 
@@ -843,7 +843,7 @@ void CMenuPopup::DrawCheckMark(HDC hDC, CMenuItem* item, int yOffset, BOOL selec
     }
     else
     {
-        if (WindowsVistaAndLater && item->HBmpItem != NULL && item->HBmpItem != HBMMENU_CALLBACK)
+        if (item->HBmpItem != NULL && item->HBmpItem != HBMMENU_CALLBACK)
             DrawCheckBitmapVista(hDC, item, yOffset, selected);
         else
             DrawCheckBitmap(hDC, item, yOffset, selected); // insert the check mark before the text (if it exists)

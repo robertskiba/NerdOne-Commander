@@ -43,44 +43,8 @@ void Initialize__Str();
 void Initialize__Trace();
 #endif // TRACE_ENABLE
 
-// ****************************************************************************
-// EnableExceptionsOn64
-//
-
-// Report SEH exceptions even on x64 Windows 7 SP1 and later
-// http://blog.paulbetts.org/index.php/2010/07/20/the-case-of-the-disappearing-onload-exception-user-mode-callback-exceptions-in-x64/
-// http://connect.microsoft.com/VisualStudio/feedback/details/550944/hardware-exceptions-on-x64-machines-are-silently-caught-in-wndproc-messages
-// http://support.microsoft.com/kb/976038
-void EnableExceptionsOn64()
-{
-    typedef BOOL(WINAPI * FSetProcessUserModeExceptionPolicy)(DWORD dwFlags);
-    typedef BOOL(WINAPI * FGetProcessUserModeExceptionPolicy)(LPDWORD dwFlags);
-    typedef BOOL(WINAPI * FIsWow64Process)(HANDLE, PBOOL);
-#define PROCESS_CALLBACK_FILTER_ENABLED 0x1
-
-    HINSTANCE hDLL = LoadLibrary("KERNEL32.DLL");
-    if (hDLL != NULL)
-    {
-        FIsWow64Process isWow64 = (FIsWow64Process)GetProcAddress(hDLL, "IsWow64Process");
-        FSetProcessUserModeExceptionPolicy set = (FSetProcessUserModeExceptionPolicy)GetProcAddress(hDLL, "SetProcessUserModeExceptionPolicy");
-        FGetProcessUserModeExceptionPolicy get = (FGetProcessUserModeExceptionPolicy)GetProcAddress(hDLL, "GetProcessUserModeExceptionPolicy");
-        if (isWow64 != NULL && set != NULL && get != NULL)
-        {
-            BOOL bIsWow64;
-            if (isWow64(GetCurrentProcess(), &bIsWow64) && bIsWow64)
-            {
-                DWORD dwFlags;
-                if (get(&dwFlags))
-                    set(dwFlags & ~PROCESS_CALLBACK_FILTER_ENABLED);
-            }
-        }
-        FreeLibrary(hDLL);
-    }
-}
-
 C__MSInit::C__MSInit()
 {
-    EnableExceptionsOn64();
     //  _CrtSetBreakAlloc(77);
 
 #ifdef TRACE_ENABLE
