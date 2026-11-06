@@ -70,14 +70,7 @@
       "./src/plugins/pictview/twain/*",
       "./src/plugins/portables/wtl/*",
       "./src/plugins/unchm/chmlib/*",
-      "./src/plugins/winscp/core/*",
-      "./src/plugins/winscp/forms/*",
-      "./src/plugins/winscp/packages/*",
-      "./src/plugins/winscp/putty/*",
-      "./src/plugins/winscp/resource/*",
-      "./src/plugins/winscp/windows/*",
-      "./tools/.venv/*",
-      "./tools/comments/code_guard_stubs/*"
+      "./tools/.venv/*"
     ]
   }
 }
