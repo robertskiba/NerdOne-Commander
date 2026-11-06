@@ -7,6 +7,7 @@ Zielplattform: Windows 11, wenn möglich auch Windows 10.
 ## Grundsätze
 
 - Es wird ausschließlich quelloffene Software verwendet. Auch optionale Windows-Komponenten wie WIC werden nicht genutzt.
+- Ausnahme: Es gibt keine vernünftige quelloffene Lösung.
 
 ## Phase 1 – Code prüfen
 
