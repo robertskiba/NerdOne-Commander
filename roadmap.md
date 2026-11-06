@@ -6,7 +6,7 @@ Zielplattform: Windows 11, wenn möglich auch Windows 10.
 
 ## Grundsätze
 
-- Es wird ausschließlich quelloffene Software verwendet.
+- Es wird ausschließlich quelloffene Software verwendet. Auch optionale Windows-Komponenten wie WIC werden nicht genutzt.
 
 ## Phase 1 – Code prüfen
 
@@ -38,7 +38,7 @@ Zielplattform: Windows 11, wenn möglich auch Windows 10.
 
 - [ ] Update-Prüfung (CheckVer) auf das eigene GitHub-Repo umstellen
 - [ ] Portabler Modus: ohne Installation lauffähig, möglichst als eine EXE
-- [ ] Bildbetrachter: Ersatz für die fehlende PictView-Engine, möglichst OSS
+- [ ] Bildbetrachter: Ersatz für die fehlende PictView-Engine, ausschließlich OSS (ohne WIC)
 - [ ] Viewer für PDF, HTML und Markdown mit PDFium, litehtml und md4c
 
 ## Fehler prüfen
