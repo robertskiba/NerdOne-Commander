@@ -12,7 +12,7 @@ Basis: Open Salamander 5.0 (Stand `a201fa3`).
 
 - Build auf Visual Studio 2026 umgestellt: alle Projekte nutzen Platform Toolset v145.
 - `build.cmd`, `rebuild.cmd` und `sfxmake.bat` finden MSBuild über `vswhere` (VS2026 oder neuer) statt über einen fest eingetragenen VS2022-Pfad.
-- CI-Build (GitHub Actions) läuft auf `windows-2025` mit VS2026, nur noch für x64.
+- CI-Build (GitHub Actions) läuft auf `windows-2025` mit VS2026, nur noch für x64, und startet jetzt auch bei jedem Push.
 - Mindestversion ist Windows 10: `WINVER`, `_WIN32_WINNT` und `_WIN32_IE` stehen in allen Projekten auf `0x0A00` (Ausnahme: der weiterhin 32-bittige SFX-Stub des ZIP-Plugins).
 - Nur noch 64-Bit-Builds: Die Plattform Win32 ist aus der Solution und allen Projekten entfernt. tserver, translator, sfx7zip und zip2sfx werden jetzt als x64 gebaut.
 - Build-, Hilfe- und Kopier-Skripte bedienen nur noch die Zielordner `Debug_x64` und `Release_x64`.
