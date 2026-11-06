@@ -46,7 +46,7 @@ echo Press any key to copy SFX packages to %OPENSAL_BUILD_DIR%salamander...
 echo.
 pause
 
-for %%t in (Debug_x86 Release_x86 Debug_x64 Release_x64) do (
+for %%t in (Debug_x64 Release_x64) do (
   echo.
   echo Copying SFX packages to %%t...
   if not exist "%OPENSAL_BUILD_DIR%salamander\%%t\plugins\zip\sfx" mkdir "%OPENSAL_BUILD_DIR%salamander\%%t\plugins\zip\sfx"

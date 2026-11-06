@@ -36,14 +36,14 @@ echo.
 echo Go to INDEX tab in opened HTML Help to create salamand.chw file.
 echo.
 
-for %%t in (Debug_x86 Release_x86 Debug_x64 Release_x64) do (
+for %%t in (Debug_x64 Release_x64) do (
   call :my_del "%OPENSAL_BUILD_DIR%salamander\%%t\help\english\salamand.chw"
 )
 
-call "%OPENSAL_BUILD_DIR%salamander\Debug_x86\help\english\salamand.chm"
+call "%OPENSAL_BUILD_DIR%salamander\Debug_x64\help\english\salamand.chm"
 
-for %%t in (          Release_x86 Debug_x64 Release_x64) do (
-  call :mycopy_bat "%OPENSAL_BUILD_DIR%salamander\Debug_x86\help\english\salamand.chw" "%OPENSAL_BUILD_DIR%salamander\%%t\help\english\salamand.chw"
+for %%t in (          Release_x64) do (
+  call :mycopy_bat "%OPENSAL_BUILD_DIR%salamander\Debug_x64\help\english\salamand.chw" "%OPENSAL_BUILD_DIR%salamander\%%t\help\english\salamand.chw"
 )
 
 echo.

@@ -22,10 +22,10 @@ if not exist "%MSB%" (
 echo Rebuild Menu:
 echo.
 echo 3 - rebuild all targets
-echo 5 - Internal Build (Utils+Debug x86/x64)
-echo 6 - Developers Build (Utils+Debug+Release x86/x64)
-echo 8 - Release/Beta Build (Utils+Release x86/x64)
-echo 9 - Utils Only (Utils x86/x64)
+echo 5 - Internal Build (Utils+Debug x64)
+echo 6 - Developers Build (Utils+Debug+Release x64)
+echo 8 - Release/Beta Build (Utils+Release x64)
+echo 9 - Utils Only (Utils x64)
 echo.
 set __your_choice=5
 set /P __your_choice=Select what you want to rebuild (0-9) [5]: 
@@ -83,19 +83,16 @@ set BUILDSTART=%time%
 echo START TIME:%STARTTIME% >%TIMESLOG%
 
 if "%__skip_debug%"=="no" (
-  call :rebuild Debug             Win32 rebuild_debug_x86.log
   call :rebuild Debug             x64   rebuild_debug_x64.log
 )
 
 if "%__skip_release%"=="no" (
-  call :rebuild Release           Win32 rebuild_release_x86.log
   if "%__skip_release_x64%"=="no" (
     call :rebuild Release         x64   rebuild_release_x64.log
   )
 )
 
 if "%__skip_utils%"=="no" (
-  call :rebuild "Utils (Release)" Win32 rebuild_utils_x86.log
   call :rebuild "Utils (Release)" x64   rebuild_utils_x64.log
 )
 

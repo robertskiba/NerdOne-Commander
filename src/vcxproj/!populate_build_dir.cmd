@@ -37,15 +37,13 @@ if not exist "%OPENSAL_BUILD_DIR%salamander" (
 powershell.exe -Command "$s=(New-Object -ComObject WScript.Shell).CreateShortcut($env:OPENSAL_BUILD_DIR+'salamander\salamander.lnk'); $s.TargetPath=$env:SAL_POPULATE_ROOT+'salamand.sln'; $s.Save()"
 
 echo Populating directory: %OPENSAL_BUILD_DIR%salamander
-call :copy_files Debug_x86   debug_nonredist\x86\Microsoft.VC143.DebugCRT concrt140d.dll msvcp140d.dll vcruntime140d.dll "%UCRTD_REDIST_PATH%\Redist\Debug\x86"
-call :copy_files Release_x86 x86\Microsoft.VC143.CRT                      concrt140.dll  msvcp140.dll  vcruntime140.dll  "%UCRT_REDIST_PATH%\ucrt\DLLs\x86"
 call :copy_files Debug_x64   debug_nonredist\x64\Microsoft.VC143.DebugCRT concrt140d.dll msvcp140d.dll vcruntime140d.dll "%UCRTD_REDIST_PATH%\Redist\Debug\x64"
 call :copy_files Release_x64 x64\Microsoft.VC143.CRT                      concrt140.dll  msvcp140.dll  vcruntime140.dll  "%UCRT_REDIST_PATH%\ucrt\DLLs\x64"
 
 echo.
 echo Copying third-party files...
 
-for %%t in (Debug_x86 Debug_x64 Release_x86 Release_x64) do (
+for %%t in (Debug_x64 Release_x64) do (
   echo.
   echo Target directory: %%t
   call :copy_thirdparty "%OPENSAL_BUILD_DIR%salamander\%%t"

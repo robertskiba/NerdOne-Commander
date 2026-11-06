@@ -1,6 +1,5 @@
 @echo off
 
-call :mycopy_with_mkdir_bat %2 %1 "%~1\..\..\..\..\Debug_x86\plugins\zip\zip2sfx" Debug_x86\plugins\zip\zip2sfx
 call :mycopy_with_mkdir_bat %2 %1 "%~1\..\..\..\..\Release_x64\plugins\zip\zip2sfx" Release_x64\plugins\zip\zip2sfx
 call :mycopy_with_mkdir_bat %2 %1 "%~1\..\..\..\..\Debug_x64\plugins\zip\zip2sfx" Debug_x64\plugins\zip\zip2sfx
 

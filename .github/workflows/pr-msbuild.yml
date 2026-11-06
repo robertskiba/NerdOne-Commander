@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: ["Win32", "x64"]
+        platform: ["x64"]
 
     defaults:
       run:

@@ -1,7 +1,7 @@
 @echo off
 
 if "%1"=="all" (
-  for %%t in (Debug_x86 Release_x86 Debug_x64 Release_x64) do (
+  for %%t in (Debug_x64 Release_x64) do (
     call :mycopy_with_mkdir_bat %3 %2 "%~2\..\..\..\..\%%t\utils" %%t\utils
     
     if "%4"=="copy_pdb" (
