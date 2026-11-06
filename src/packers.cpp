@@ -212,10 +212,7 @@ void CPackerConfig::AddDefault(int SalamVersion)
         if ((index = AddPacker()) == -1)
             return;
         SetPacker(index, 0, "ZIP (Plugin)", "zip", TRUE);
-    case 2: // added after beta1
-        if ((index = AddPacker()) == -1)
-            return;
-        SetPacker(index, 3, "PAK (Plugin)", "pak", TRUE);
+    case 2:  // added after beta1 (PAK, removed in NerdOne Commander)
     case 3:  // added after beta2
     case 4:  // beta 3 but with old configuration (contains $(SpawnName))
     case 5:; // new in beta4?
@@ -1026,10 +1023,6 @@ void CUnpackerConfig::AddDefault(int SalamVersion)
                 }
                 break;
             }
-        // and new formats
-        if ((index = AddUnpacker()) == -1)
-            return;
-        SetUnpacker(index, 3, "PAK (Plugin)", "*.pak", TRUE);
     case 3: // what was added after beta2
     case 4: // beta 3 but without the $(SpawnName) variable
     case 5: // what is new in beta4?

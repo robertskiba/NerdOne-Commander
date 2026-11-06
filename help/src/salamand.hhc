@@ -938,24 +938,6 @@
 		</UL>
 
 		<LI> <OBJECT type="text/sitemap">
-			<param name="Name" value="DemoMenu">
-			</OBJECT>
-		<UL>
-			<OBJECT type="text/sitemap">
-				<param name="Merge" value="demomenu.chm::\demomenu.hhc">
-			</OBJECT>
-		</UL>
-
-		<LI> <OBJECT type="text/sitemap">
-			<param name="Name" value="DemoView">
-			</OBJECT>
-		<UL>
-			<OBJECT type="text/sitemap">
-				<param name="Merge" value="demoview.chm::\demoview.hhc">
-			</OBJECT>
-		</UL>
-
-		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="DiskMap">
 			</OBJECT>
 		<UL>
@@ -1010,15 +992,6 @@
 		</UL>
 
 		<LI> <OBJECT type="text/sitemap">
-			<param name="Name" value="Quake PAK">
-			</OBJECT>
-		<UL>
-			<OBJECT type="text/sitemap">
-				<param name="Merge" value="pak.chm::\pak.hhc">
-			</OBJECT>
-		</UL>
-
-		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Portable Executable Viewer">
 			</OBJECT>
 		<UL>
@@ -1051,15 +1024,6 @@
 		<UL>
 			<OBJECT type="text/sitemap">
 				<param name="Merge" value="renamer.chm::\renamer.hhc">
-			</OBJECT>
-		</UL>
-
-		<LI> <OBJECT type="text/sitemap">
-			<param name="Name" value="Salamander Demo Plugin">
-			</OBJECT>
-		<UL>
-			<OBJECT type="text/sitemap">
-				<param name="Merge" value="demoplug.chm::\demoplug.hhc">
 			</OBJECT>
 		</UL>
 
@@ -1159,24 +1123,6 @@
 		<UL>
 			<OBJECT type="text/sitemap">
 				<param name="Merge" value="unrar.chm::\unrar.hhc">
-			</OBJECT>
-		</UL>
-
-		<LI> <OBJECT type="text/sitemap">
-			<param name="Name" value="Windows Mobile">
-			</OBJECT>
-		<UL>
-			<OBJECT type="text/sitemap">
-				<param name="Merge" value="wmobile.chm::\wmobile.hhc">
-			</OBJECT>
-		</UL>
-
-		<LI> <OBJECT type="text/sitemap">
-			<param name="Name" value="WinSCP">
-			</OBJECT>
-		<UL>
-			<OBJECT type="text/sitemap">
-				<param name="Merge" value="winscp.chm::\winscp.hhc">
 			</OBJECT>
 		</UL>
 

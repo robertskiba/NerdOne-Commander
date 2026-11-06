@@ -452,10 +452,6 @@ void CPackerFormatConfig::AddDefault(int SalamVersion)
                 }
                 break;
             }
-        // and new extensions
-        if ((index = AddFormat()) == -1)
-            return;
-        SetFormat(index, "pak", TRUE, -3, -3, TRUE);
 
     case 3: // what was added after beta2
     case 4: // beta3 but with old configuration (contains $(SpawnName))

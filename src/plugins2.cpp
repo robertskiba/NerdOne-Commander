@@ -1550,11 +1550,6 @@ void CPlugins::Load(HWND parent, HKEY regKey)
                        "Copyright © 1999-2023 Open Salamander Authors",
                        "Unix archives readonly support for Open Salamander.",
                        "TAR", "tar;tgz;taz;tbz;gz;bz;bz2;z;rpm;cpio", NULL, FALSE, NULL, NULL) ||
-            !AddPlugin("PAK", "pak\\pak.spl",
-                       TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, "1.68",
-                       "Copyright © 1999-2023 Open Salamander Authors",
-                       "This plug-ing adds support for Quake PAK archives.",
-                       "PAK", "pak", NULL, FALSE, NULL, NULL) ||
             !AddPlugin("Internet Explorer Viewer", "ieviewer\\ieviewer.spl",
                        FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE,
                        "1.1", "Copyright © 1999-2023 Open Salamander Authors",
@@ -2077,9 +2072,7 @@ void CPlugins::CheckData()
                 case 2:
                     PackerConfig.SetPackerType(i, -2);
                     break; // TAR
-                case 3:
-                    PackerConfig.SetPackerType(i, -3);
-                    break; // PAK
+                // 3 = PAK: plugin removed in NerdOne Commander, and -3 would now point to another default plugin
                 default:
                     PackerConfig.DeletePacker(i--);
                     break; // error
@@ -2104,9 +2097,7 @@ void CPlugins::CheckData()
                 case 2:
                     UnpackerConfig.SetUnpackerType(i, -2);
                     break; // TAR
-                case 3:
-                    UnpackerConfig.SetUnpackerType(i, -3);
-                    break; // PAK
+                // 3 = PAK: plugin removed in NerdOne Commander, and -3 would now point to another default plugin
                 default:
                     UnpackerConfig.DeleteUnpacker(i--);
                     break; // error
@@ -2134,8 +2125,8 @@ void CPlugins::CheckData()
                         viewerMasks->At(i)->ViewerType = VIEWER_INTERNAL;
                         break; // internal viewer
                     case 1:
-                        viewerMasks->At(i)->ViewerType = -4;
-                        break; // IE viewer
+                        viewerMasks->At(i)->ViewerType = -3;
+                        break; // IE viewer (3rd default plugin)
                     case 2:
                         viewerMasks->At(i)->ViewerType = VIEWER_EXTERNAL;
                         break; // external

@@ -353,7 +353,7 @@ CMainWindow::CMainWindow() : ChangeNotifArray(3, 5)
     {
         ViewerMasks->Add(item); // no critical section needed; this is the constructor
         item->Set("*.htm;*.html;*.xml;*.mht", "", "", "");
-        item->ViewerType = -4; // IE viewer (4th plugin in the default configuration)
+        item->ViewerType = -3; // IE viewer (3rd plugin in the default configuration)
     }
 
     item = new CViewerMasksItem();

@@ -358,8 +358,6 @@ IDD_REMOVE_MASTERPWD=hh\salamand\dlgboxes_masterpwd_remove.htm
 [MERGE FILES]
 zip.chm
 filecomp.chm
-demoplug.chm
-demoview.chm
 7zip.chm
 dbviewer.chm
 ftp.chm
@@ -367,7 +365,6 @@ checksum.chm
 checkver.chm
 ieviewer.chm
 mmviewer.chm
-pak.chm
 peviewer.chm
 pictview.chm
 regedt.chm
@@ -382,13 +379,10 @@ uniso.chm
 unlha.chm
 unmime.chm
 unrar.chm
-wmobile.chm
-winscp.chm
 nethood.chm
 unchm.chm
 automation.chm
 diskmap.chm
-demomenu.chm
 
 [INFOTYPES]
 

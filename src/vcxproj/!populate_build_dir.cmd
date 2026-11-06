@@ -59,7 +59,6 @@ echo.
 echo DONE
 echo.
 echo Other important tasks:
-echo -Build WinSCP plugin.
 echo -Build all language versions of Salamander and plugins.
 echo.
 pause

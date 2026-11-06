@@ -4,16 +4,10 @@
 ; happen when address space is already allocated, for example by third party shell extension.
 salamand        0x0000010004000000
 lang            0x0000010030000000
-demoplug        0x0000010020100000
-lang_demoplug   0x0000010030100000
 ieviewer        0x0000010020200000
 lang_ieviewer   0x0000010030200000
-wmobile         0x0000010020300000
-lang_wmobile    0x0000010030300000
 checksum        0x0000010020400000
 lang_checksum   0x0000010030400000
-pak             0x0000010020500000
-lang_pak        0x0000010030500000
 pictview        0x0000010020600000
 lang_pictview   0x0000010030600000
 tar             0x0000010020700000
@@ -27,10 +21,6 @@ lang_unchm      0x0000010030b00000
 chmlib          0x0000010020c00000
 diskmap         0x0000010020d00000
 lang_diskmap    0x0000010030d00000
-demoview        0x0000010020e00000
-lang_demoview   0x0000010030e00000
-demomenu        0x0000010020f00000
-lang_demomenu   0x0000010030f00000
 unrar           0x0000010021000000
 lang_unrar      0x0000010031000000
 zip             0x0000010021100000
@@ -82,9 +72,6 @@ lang_undbx      0x0000010038400000
 symbian         0x0000010028600000
 unfat           0x0000010028700000
 lang_unfat      0x0000010038700000
-winscp          0x0000010028900000
-lang_winscp     0x0000010038900000
-winscp          0x0000010028d00000
 nethood         0x0000010028e00000
 lang_nethood    0x0000010038e00000
 7zwrapper       0x0000010028f00000
