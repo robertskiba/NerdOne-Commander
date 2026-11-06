@@ -82,6 +82,29 @@ jobs:
             exit $LASTEXITCODE
           }
 
+      - name: Build utilities via MSBuild (Utils (Release) | x64)
+        # salopen, salspawn, the shell extension and zip2sfx are only built in this
+        # solution configuration; their post-build step copies them to Release_x64\utils
+        if: matrix.configuration == 'Release'
+        run: |
+          $txtLog = Join-Path (Join-Path (Get-Location) $env:LOG_DIRECTORY) "msbuild-Utils-x64-run$($env:GITHUB_RUN_NUMBER).log"
+          $arguments = @(
+            $env:SOLUTION_PATH
+            '/m'
+            '/t:Build'
+            '/p:Configuration=Utils (Release)'
+            '/p:Platform=x64'
+            '/p:PreferredToolArchitecture=x64'
+            '/warnaserror'
+            '/nr:false'
+            '/v:m'
+          )
+          msbuild @arguments 2>&1 | Tee-Object -FilePath $txtLog -Encoding UTF8
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "MSBuild failed with exit code $LASTEXITCODE"
+            exit $LASTEXITCODE
+          }
+
       - name: Package portable ZIP
         id: package
         if: matrix.configuration == 'Release'
@@ -108,6 +131,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: msbuild-x64-${{ matrix.configuration }}-logs
-          path: |
-            ${{ env.LOG_PATH }}
+          path: s/build_logs/
           if-no-files-found: warn

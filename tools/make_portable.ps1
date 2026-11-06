@@ -46,6 +46,17 @@ Get-ChildItem $binDir -Recurse -File |
         Copy-Item $_.FullName $dst
     }
 
+# Developer tools that are not part of the program: trace server and the installer's SFX stub
+foreach ($f in @('utils\tserver.exe', 'utils\sfx7zip.exe', 'utils\sfx7zip.sfx')) {
+    $p = Join-Path $stage $f
+    if (Test-Path $p) { Remove-Item $p -Force }
+}
+
+# The program does not work without its helpers; stop if the Utils build was skipped
+foreach ($f in @('utils\salopen.exe', 'utils\salspawn.exe', 'utils\salextx64.dll', 'utils\salmon.exe')) {
+    if (-not (Test-Path (Join-Path $stage $f))) { throw "$f is missing - build 'Utils (Release)|x64' first." }
+}
+
 # Plugins that cannot work in this release: PictView lacks its decoding engine
 # (PVW32Cnv.dll, closed source) and UnRAR needs the proprietary unrar.dll.
 foreach ($p in @('pictview', 'unrar')) {
