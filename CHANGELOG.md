@@ -30,6 +30,7 @@ Basis: Open Salamander 5.0 (Stand `a201fa3`).
 - Nur noch 64-Bit-Builds: Die Plattform Win32 ist aus der Solution und allen Projekten entfernt. tserver, translator, sfx7zip und zip2sfx werden jetzt als x64 gebaut.
 - Build-, Hilfe- und Kopier-Skripte bedienen nur noch die Zielordner `Debug_x64` und `Release_x64`.
 - Programmstart verlangt Windows 10 oder neuer (vorher Windows 7).
+- Die Shell-Erweiterung bringt eigene `strcpy`/`strlen` mit, weil sie ohne C-Laufzeitbibliothek gelinkt wird und VS2026 diese Funktionen nicht mehr immer als Intrinsics einsetzt.
 - Debug-Builds verzichten auf die Laufzeitprüfung `/RTCc` (Smaller Type Check), die die Standardbibliothek von VS2026 nicht mehr unterstützt.
 - APIs, die es auf jedem Windows 10 gibt, werden direkt aufgerufen statt per `GetProcAddress` geladen (u. a. `ShutdownBlockReasonCreate`, `GetNativeSystemInfo`, `SHGetKnownFolderPath`, `SHOpenFolderAndSelectItems`, `SHGetStockIconInfo`, WTS-Funktionen).
 - Wiederverbinden von Netzlaufwerken nutzt nur noch den System-Dialog (`CONNECT_INTERACTIVE`) statt des alten CredUI-Pfads.

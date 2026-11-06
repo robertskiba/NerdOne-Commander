@@ -5,9 +5,36 @@
 #include <windowsx.h>
 #include <shlobj.h>
 
+#include <string.h>
+
 #include "lstrfix.h"
 #include "..\shexreg.h"
 #include "shellext.h"
+
+//
+// The shell extension is linked without the C runtime (IgnoreAllDefaultLibraries).
+// MSVC 14.5x (VS2026) no longer always expands strcpy/strlen as intrinsics, so the
+// lstrcpyA/lstrlenA replacements in lstrfix.inc need real implementations here.
+// Optimizations are off so the compiler cannot turn the loops back into CRT calls.
+//
+#pragma function(strcpy, strlen)
+#pragma optimize("", off)
+char* __cdecl strcpy(char* dst, const char* src)
+{
+    char* d = dst;
+    while ((*d++ = *src++) != 0)
+        ;
+    return dst;
+}
+
+size_t __cdecl strlen(const char* str)
+{
+    const char* s = str;
+    while (*s != 0)
+        s++;
+    return (size_t)(s - str);
+}
+#pragma optimize("", on)
 
 //
 // Global variables
