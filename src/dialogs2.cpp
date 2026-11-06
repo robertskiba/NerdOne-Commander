@@ -1062,7 +1062,7 @@ CLanguageSelectorDialog::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
         if (PluginName != NULL && LOWORD(wParam) == IDCANCEL)
             return 0;
         if (LOWORD(wParam) == IDB_GETMORELANGS)
-            ShellExecute(HWindow, "open", "https://forum.altap.cz/viewforum.php?f=23", NULL, NULL, SW_SHOWNORMAL);
+            ShellExecute(HWindow, "open", NERDONE_GITHUB_URL "/tree/main/translations", NULL, NULL, SW_SHOWNORMAL);
         if (LOWORD(wParam) == IDB_REFRESHLANGS)
         {
             ListView_DeleteAllItems(HListView);

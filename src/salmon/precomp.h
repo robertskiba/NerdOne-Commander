@@ -25,7 +25,6 @@
 #include "..\salmoncl.h"
 
 #include "salmon.h"
-#include "upload.h"
 #include "compress.h"
 #include "minidump.h"
 #include "dialogs.h"

@@ -57,9 +57,6 @@
     <ClCompile Include="..\..\salmon\salmon.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\salmon\upload.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\common\allochan.h">
@@ -105,9 +102,6 @@
       <Filter>source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\salmoncl.h">
-      <Filter>source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\salmon\upload.h">
       <Filter>source</Filter>
     </ClInclude>
   </ItemGroup>

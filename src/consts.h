@@ -6,6 +6,9 @@
 // current configuration version (see mainwnd2.cpp for details)
 extern const DWORD THIS_CONFIG_VERSION;
 
+// project home page (releases, issues, translations)
+#define NERDONE_GITHUB_URL "https://github.com/robertskiba/NerdOne-Commander"
+
 // Version expiration: uncomment for beta and PB builds, comment out for release builds:
 //#define USE_BETA_EXPIRATION_DATE
 
@@ -2116,7 +2119,7 @@ int GetWMCommandFromSalCmd(int salCmd);
 //******************************************************************************
 
 // number of items in the SalamanderConfigurationRoots array
-#define SALCFG_ROOTS_COUNT 83
+#define SALCFG_ROOTS_COUNT 2
 
 // ID of the main thread (valid only after entering WinMain())
 extern DWORD MainThreadID;

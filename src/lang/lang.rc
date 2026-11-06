@@ -66,7 +66,7 @@ BEGIN
     DEFPUSHBUTTON   "E&xit",IDCANCEL,92,57,50,14,WS_GROUP
     PUSHBUTTON      "&Continue",IDOK,149,57,50,14
     LTEXT           "This beta version has expired. Please download and install updated beta version:",IDC_STATIC_1,10,10,274,8
-    LTEXT           "www.altap.cz/salamander/downloads/beta",IDC_BETAEXPIREDURL,10,23,274,8,WS_TABSTOP
+    LTEXT           "github.com/robertskiba/NerdOne-Commander/releases",IDC_BETAEXPIREDURL,10,23,274,8,WS_TABSTOP
     LTEXT           "Today is %s and this version expired on %s.",IDC_BETAEXPIREDDATE,10,36,274,16
 END
 
@@ -636,7 +636,7 @@ BEGIN
     LTEXT           "Version",IDS_ABOUT_SALAMANDER,10,86,201,8
     LTEXT           "Copyright © 1997-2023 Open Salamander Authors",IDC_STATIC_1,10,97,196,8
     LTEXT           "Web:",IDC_STATIC_3,10,108,20,8
-    LTEXT           "www.altap.cz",IDC_ABOUT_WWW,31,108,64,8,WS_TABSTOP
+    LTEXT           "github.com/robertskiba/NerdOne-Commander",IDC_ABOUT_WWW,31,108,180,8,WS_TABSTOP
     LTEXT           "Open Salamander is free software",IDC_STATIC_4,10,119,165,8
     LTEXT           "Licensed under GNU General Public License version 2 or later",IDC_STATIC_5,10,130,214,8
     CONTROL         "",IDC_ABOUT_BOTTOM,"Static",SS_ETCHEDHORZ | WS_GROUP,2,154,294,1
@@ -2069,8 +2069,8 @@ STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPT
 CAPTION "Open Salamander Bug Reporter"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    LTEXT           "A problem has occured, forcing Open Salamander to close. To help us avoid similar problems in the future, please send an error report below.",IDC_SALMON_INTRO,8,9,336,16
-    LTEXT           "Privacy Policy: we don't give out any of your information to any third party.",IDC_SALMON_PRIVACY,8,33,259,8
+    LTEXT           "A problem has occured, forcing Open Salamander to close. You can save an error report below to help fix the problem.",IDC_SALMON_INTRO,8,9,336,16
+    LTEXT           "Privacy: the report is stored on this computer only and is never sent anywhere.",IDC_SALMON_PRIVACY,8,33,259,8
     LTEXT           "...",IDC_SALMON_UPLOADING,8,42,84,8
     LTEXT           "Error description (optional)",IDC_SALMON_DESCRIPTION,8,51,169,8
     PUSHBUTTON      "&View Report",IDC_SALMON_VIEW,254,48,90,14
@@ -2079,8 +2079,8 @@ BEGIN
     LTEXT           "&Contact email:",IDC_SALMON_EMAIL_LABEL,8,144,50,8
     EDITTEXT        IDC_SALMON_EMAIL,8,154,336,14,ES_AUTOHSCROLL
     CONTROL         "&Restart Open Salamander",IDC_SALMON_RESTART,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,178,98,10
-    DEFPUSHBUTTON   "&Send Report",IDOK,158,176,90,14
-    PUSHBUTTON      "&Do Not Send Report",IDCANCEL,254,176,90,14
+    DEFPUSHBUTTON   "&Save Report",IDOK,158,176,90,14
+    PUSHBUTTON      "&Do Not Save Report",IDCANCEL,254,176,90,14
 END
 
 IDD_CONFIRMLINKTGTCOPY DIALOGEX 15, 34, 352, 96
