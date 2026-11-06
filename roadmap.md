@@ -40,6 +40,7 @@ Zielplattform: Windows 11, wenn möglich auch Windows 10.
 - [ ] Update-Prüfung (CheckVer) auf das eigene GitHub-Repo umstellen
 - [ ] Portabler Modus: ohne Installation lauffähig, möglichst als eine EXE
 - [ ] Bildbetrachter: Ersatz für die fehlende PictView-Engine, ausschließlich OSS (ohne WIC)
+- [ ] Bildbetrachter unterstützt alle aktuellen Bildformate, die ein Mobiltelefon liefern kann (z. B. HEIC)
 - [ ] Viewer für PDF, HTML und Markdown mit PDFium, litehtml und md4c
 - [ ] RAR-Plugin von der proprietären unrar.dll auf den quelloffenen RAR-Entpacker von 7-Zip umstellen
 
