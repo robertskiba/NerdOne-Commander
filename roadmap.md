@@ -4,6 +4,10 @@ Basis: Fork von Open Salamander 5.0 (GPLv2).
 
 Zielplattform: Windows 11, wenn möglich auch Windows 10.
 
+## Grundsätze
+
+- Es wird ausschließlich quelloffene Software verwendet.
+
 ## Phase 1 – Code prüfen
 
 - [ ] Bestandsaufnahme von Codebasis, Projektstruktur und Build-System
@@ -35,11 +39,12 @@ Zielplattform: Windows 11, wenn möglich auch Windows 10.
 - [ ] Update-Prüfung (CheckVer) auf das eigene GitHub-Repo umstellen
 - [ ] Portabler Modus: ohne Installation lauffähig, möglichst als eine EXE
 - [ ] Bildbetrachter: Ersatz für die fehlende PictView-Engine, möglichst OSS
-- [ ] Viewer für PDF, HTML und Markdown, möglichst mit OSS-Lösungen
+- [ ] Viewer für PDF, HTML und Markdown mit PDFium, litehtml und md4c
 
 ## Fehler prüfen
 
 - [ ] Absturz beim Anzeigen von CSV-Dateien (bekannt aus dem letzten Altap Salamander)
+- [ ] Hotpath 0 lässt sich belegen, aber nicht mit Strg+0 aufrufen
 
 ## Dateisystem-Kompatibilität
 
