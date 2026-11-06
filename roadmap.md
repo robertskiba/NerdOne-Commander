@@ -24,7 +24,7 @@ Zielplattform: Windows 11, wenn möglich auch Windows 10.
 
 - [x] Ermitteln, was obsolet ist
 - [x] Entscheiden, was entfernt wird (10 Punkte freigegeben am 06.11.2026; CheckVer bleibt)
-- [ ] Freigegebene Punkte entfernen
+- [x] Freigegebene Punkte entfernen (noch nicht kompiliert)
 
 ## Cloud-Speicher und Fernverbindungen
 
