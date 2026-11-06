@@ -149,14 +149,19 @@ const DWORD THIS_CONFIG_VERSION = 104;
 // simply insert the path at index 0.
 
 // !!! Keep the corresponding lines in SalamanderConfigurationVersions up to date
+// NerdOne Commander: index 0 is the interim registry root of NerdOne Commander (until the
+// file-based configuration exists, see roadmap.md); the Open Salamander and Altap Salamander
+// roots are offered as import sources only.
 const char* SalamanderConfigurationRoots[SALCFG_ROOTS_COUNT + 1] =
     {
+        "Software\\NerdOne Commander",
         "Software\\Open Salamander\\5.0",
         "Software\\Altap\\Altap Salamander 4.0",
         NULL // terminator (configurations of versions older than 4.0 are no longer imported)
 };
 const char* SalamanderConfigurationVersions[SALCFG_ROOTS_COUNT] =
     {
+        "", // NerdOne Commander: the root is not version specific
         "5.0",
         "4.0"
 };
@@ -706,7 +711,7 @@ BOOL GetUpgradeInfo(BOOL* autoImportConfig, char* autoImportConfigFromKey, int a
                                  "configuration for the new version. You can use this existing configuration (the configuration of "
                                  "the old version remains in registry, so you can import it later). Or you can overwrite "
                                  "this existing configuration (it would be lost) with the configuration of the old version. "
-                                 "Or you can exit Open Salamander and solve this problem later.",
+                                 "Or you can exit NerdOne Commander and solve this problem later.",
                             keyName, SALAMANDER_TEXT_VERSION);
                     params.Text = buf;
                     char aliasBtnNames[200];
@@ -1093,6 +1098,14 @@ MENU_TEMPLATE_ITEM MsgBoxButtons[] =
 
 // deletes keys according to the array returned by FindLatestConfiguration
 
+// Only configurations of NerdOne Commander itself may be deleted. Open Salamander and Altap
+// Salamander are separate programs that may still be installed, so their keys are import
+// sources only and must never be removed.
+static BOOL IsOwnConfigurationKey(const char* key)
+{
+    return key != NULL && StrIStr(key, "NerdOne Commander") != NULL;
+}
+
 void CMainWindow::DeleteOldConfigurations(BOOL* deleteConfigurations, BOOL autoImportConfig,
                                           const char* autoImportConfigFromKey,
                                           BOOL doNotDeleteImportedCfg)
@@ -1124,7 +1137,7 @@ void CMainWindow::DeleteOldConfigurations(BOOL* deleteConfigurations, BOOL autoI
         int rootIndex;
         for (rootIndex = 0; rootIndex < SALCFG_ROOTS_COUNT; rootIndex++)
         {
-            if (deleteConfigurations[rootIndex])
+            if (deleteConfigurations[rootIndex] && IsOwnConfigurationKey(SalamanderConfigurationRoots[rootIndex]))
             {
                 HKEY hKey;
                 const char* key = SalamanderConfigurationRoots[rootIndex];
@@ -1155,7 +1168,7 @@ void CMainWindow::DeleteOldConfigurations(BOOL* deleteConfigurations, BOOL autoI
             }
             else // clear the old configuration (it is already stored in the new key)
             {
-                if (!doNotDeleteImportedCfg)
+                if (!doNotDeleteImportedCfg && IsOwnConfigurationKey(autoImportConfigFromKey))
                 {
                     if (HANDLES_Q(RegOpenKeyEx(HKEY_CURRENT_USER, autoImportConfigFromKey, 0,
                                                KEY_READ | KEY_WRITE, &cfgKey)) == ERROR_SUCCESS)

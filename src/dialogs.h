@@ -1084,7 +1084,7 @@ public:
     CWaitWindow(HWND hParent, int textResID, BOOL showCloseButton, CObjectOrigin origin = ooAllocated, BOOL showProgressBar = FALSE);
     ~CWaitWindow();
 
-    void SetCaption(const char* text); // if not called, the caption will be "Open Salamander"
+    void SetCaption(const char* text); // if not called, the caption will be MAINWINDOW_NAME ("NerdOne Commander")
     void SetText(const char* text);
 
     void SetProgressMax(DWORD max);

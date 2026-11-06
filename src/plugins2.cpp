@@ -1535,17 +1535,17 @@ void CPlugins::Load(HWND parent, HKEY regKey)
         if (!AddPlugin("ZIP", "zip\\zip.spl",
                        TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, "1.32",
                        "Copyright © 2000-2023 Open Salamander Authors",
-                       "ZIP archives support for Open Salamander.",
+                       "ZIP archives support for NerdOne Commander.",
                        "ZIP", "zip;pk3;jar", NULL, FALSE, NULL, NULL) ||
             !AddPlugin("TAR", "tar\\tar.spl",
                        TRUE, FALSE, FALSE, TRUE, FALSE, TRUE, TRUE, FALSE, FALSE, "3.3",
                        "Copyright © 1999-2023 Open Salamander Authors",
-                       "Unix archives readonly support for Open Salamander.",
+                       "Unix archives readonly support for NerdOne Commander.",
                        "TAR", "tar;tgz;taz;tbz;gz;bz;bz2;z;rpm;cpio", NULL, FALSE, NULL, NULL) ||
             !AddPlugin("Internet Explorer Viewer", "ieviewer\\ieviewer.spl",
                        FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE,
                        "1.1", "Copyright © 1999-2023 Open Salamander Authors",
-                       "Internet Explorer Viewer for Open Salamander.",
+                       "Internet Explorer Viewer for NerdOne Commander.",
                        "IEVIEWER", "", NULL, FALSE, NULL, NULL))
         {
             HANDLES(EnterCriticalSection(&DataCS));

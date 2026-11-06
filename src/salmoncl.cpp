@@ -26,7 +26,7 @@ HANDLE GetBugReporterRegistryMutex()
     SetSecurityDescriptorDacl(secAttr.lpSecurityDescriptor, TRUE, 0, FALSE);
     // it would be useful to add the SID to the mutex name because processes with a different SID use a different HKCU tree
     // but for simplicity we ignore that and keep the mutex truly global
-    const char* MUTEX_NAME = "Global\\AltapSalamanderBugReporterRegistryMutex";
+    const char* MUTEX_NAME = "Global\\NerdOneCommander.BugReporterRegistryMutex";
     HANDLE hMutex = NOHANDLES(CreateMutex(&secAttr, FALSE, MUTEX_NAME));
     if (hMutex == NULL) // CreateMutex can open an existing mutex, but it may fail, so try OpenMutex afterwards
         hMutex = NOHANDLES(OpenMutex(SYNCHRONIZE, FALSE, MUTEX_NAME));
@@ -35,7 +35,7 @@ HANDLE GetBugReporterRegistryMutex()
 
 BOOL SalmonGetBugReportUID(DWORD64* uid)
 {
-    const char* BUG_REPORTER_KEY = "Software\\Open Salamander\\Bug Reporter";
+    const char* BUG_REPORTER_KEY = "Software\\NerdOne Commander\\Bug Reporter"; // keep in sync with salmon\config.cpp (DB_ROOT_KEY)
     const char* BUG_REPORTER_UID = "ID";
 
     // This section runs during Salamander startup, and concurrent registry reads and writes may theoretically occur.
@@ -113,7 +113,7 @@ BOOL SalmonSharedMemInit(CSalmonSharedMemory* mem)
         int len = lstrlen(mem->BugPath);
         if (len > 0 && mem->BugPath[len - 1] == '\\') // check whether the path ends with a backslash
             mem->BugPath[len - 1] = 0;
-        lstrcat(mem->BugPath, "\\Open Salamander");
+        lstrcat(mem->BugPath, "\\NerdOne Commander");
     }
 
     // base name for bug report files

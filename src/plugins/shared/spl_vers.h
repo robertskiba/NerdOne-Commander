@@ -21,9 +21,28 @@
 #define VERSINFO_xstr(s) VERSINFO_str(s)
 #define VERSINFO_str(s) #s
 
+// VERSINFO_SALAMANDER_MAJOR/MINORA/MINORB:
+//
+// Version of the plugin API / host compatibility level (Open Salamander 5.0). Plugins and the
+// configuration code depend on it, so it stays unchanged even though NerdOne Commander has its
+// own product version (see NERDONE_VERSION_* below).
 #define VERSINFO_SALAMANDER_MAJOR 5
 #define VERSINFO_SALAMANDER_MINORA 0
 #define VERSINFO_SALAMANDER_MINORB 0
+
+// NERDONE_VERSION_*:
+//
+// Product version of NerdOne Commander. Used only for what the user sees (About dialog,
+// window title, messages) and for the VERSIONINFO resources of nerdone.exe and its language
+// file (english.slg), plus ProductVersion of all modules. Never use it for plugin API or
+// configuration compatibility decisions; use LAST_VERSION_OF_SALAMANDER and
+// THIS_CONFIG_VERSION for that.
+#define NERDONE_VERSION_MAJOR 0
+#define NERDONE_VERSION_MINOR 1
+#define NERDONE_VERSION_PATCH 0
+#define NERDONE_VERSION_SUFFIX "-alpha" // pre-release label, "" for a final release
+#define NERDONE_VERSION_TEXT VERSINFO_xstr(NERDONE_VERSION_MAJOR) "." VERSINFO_xstr(NERDONE_VERSION_MINOR) "." VERSINFO_xstr(NERDONE_VERSION_PATCH) NERDONE_VERSION_SUFFIX
+#define NERDONE_PRODUCT_NAME "NerdOne Commander"
 
 #if (VERSINFO_SALAMANDER_MINORB == 0) // omit the trailing zero in the hundredths place: 2.50 -> 2.5
 #define VERSINFO_SALAMANDER_VERSION VERSINFO_xstr(VERSINFO_SALAMANDER_MAJOR) "." VERSINFO_xstr(VERSINFO_SALAMANDER_MINORA) VERSINFO_BETAVERSION_TXT
@@ -184,6 +203,6 @@
 //   103 - 5.0
 
 #define LAST_VERSION_OF_SALAMANDER 103
-#define REQUIRE_LAST_VERSION_OF_SALAMANDER "This plugin requires Open Salamander 5.0 (" SAL_VER_PLATFORM ") or later."
+#define REQUIRE_LAST_VERSION_OF_SALAMANDER "This plugin requires NerdOne Commander " NERDONE_VERSION_TEXT " (" SAL_VER_PLATFORM ") or later."
 
 #endif // __SPL_VERS_H

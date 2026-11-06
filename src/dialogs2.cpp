@@ -607,6 +607,27 @@ CImportConfigDialog::~CImportConfigDialog()
 
 extern const char* SalamanderConfigurationVersions[SALCFG_ROOTS_COUNT];
 
+// returns the display name of the configuration at index 'rootIndex' of SalamanderConfigurationRoots
+// (e.g. "NerdOne Commander", "Open Salamander 5.0", "Altap Salamander 4.0")
+static void GetConfigurationDisplayName(int rootIndex, char* buff, size_t buffSize)
+{
+    const char* root = SalamanderConfigurationRoots[rootIndex];
+    const char* version = SalamanderConfigurationVersions[rootIndex];
+    const char* product;
+    if (StrIStr(root, "NerdOne Commander") != NULL)
+        product = "NerdOne Commander";
+    else if (StrIStr(root, "Open Salamander") != NULL)
+        product = "Open Salamander";
+    else if (StrIStr(root, "Altap Salamander") != NULL)
+        product = "Altap Salamander";
+    else
+        product = "Servant Salamander";
+    if (version[0] != 0)
+        _snprintf_s(buff, buffSize, _TRUNCATE, "%s %s", product, version);
+    else
+        _snprintf_s(buff, buffSize, _TRUNCATE, "%s", product);
+}
+
 void CImportConfigDialog::Transfer(CTransferInfo& ti)
 {
     if (ti.Type == ttDataToWindow)
@@ -627,13 +648,8 @@ void CImportConfigDialog::Transfer(CTransferInfo& ti)
         {
             if (ConfigurationExist[i])
             {
-                // detect whether this is "Open Salamander", "Altap Salamander", or the old "Servant Salamander"
-                BOOL openSalamander = StrIStr(SalamanderConfigurationRoots[i], "Open Salamander") != NULL;
-                BOOL altapSalamander = StrIStr(SalamanderConfigurationRoots[i], "Altap Salamander") != NULL;
-                const char* name = openSalamander    ? "Open Salamander %s"
-                                   : altapSalamander ? "Altap Salamander %s"
-                                                     : "Servant Salamander %s";
-                sprintf(buff, name, SalamanderConfigurationVersions[i]);
+                // "NerdOne Commander", "Open Salamander 5.0", "Altap Salamander 4.0" or the old "Servant Salamander"
+                GetConfigurationDisplayName(i, buff, sizeof(buff));
                 SendDlgItemMessage(HWindow, IDC_IMPORTCONFIG, CB_ADDSTRING, 0, (LPARAM)buff);
                 if (selIndex == 0)
                     selIndex = 1; // the last configuration becomes default
@@ -659,13 +675,8 @@ void CImportConfigDialog::Transfer(CTransferInfo& ti)
                 lvi.iSubItem = 0;
                 lvi.state = 0;
 
-                // detect whether this is "Open Salamander", "Altap Salamander", or the old "Servant Salamander"
-                BOOL openSalamander = StrIStr(SalamanderConfigurationRoots[i], "Open Salamander") != NULL;
-                BOOL altapSalamander = StrIStr(SalamanderConfigurationRoots[i], "Altap Salamander") != NULL;
-                const char* name = openSalamander    ? "Open Salamander %s"
-                                   : altapSalamander ? "Altap Salamander %s"
-                                                     : "Servant Salamander %s";
-                sprintf(buff, name, SalamanderConfigurationVersions[i]);
+                // "NerdOne Commander", "Open Salamander 5.0", "Altap Salamander 4.0" or the old "Servant Salamander"
+                GetConfigurationDisplayName(i, buff, sizeof(buff));
                 lvi.pszText = buff;
                 ListView_InsertItem(hListView, &lvi);
                 index++;
@@ -1074,7 +1085,7 @@ CLanguageSelectorDialog::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
             if (GetLanguagesCount() == 0) // should not happen because this dialog is loaded from the .slg module (that .slg cannot be deleted)
             {
                 MessageBox(HWindow, "Unable to find any language file (.SLG) in subdirectory LANG.\n"
-                                    "Please reinstall Open Salamander.",
+                                    "Please reinstall NerdOne Commander.",
                            SALAMANDER_TEXT_VERSION, MB_OK | MB_ICONERROR);
                 TRACE_E("CLanguageSelectorDialog: unexpected situation (no language file): calling ExitProcess(667).");
                 //          ExitProcess(667);

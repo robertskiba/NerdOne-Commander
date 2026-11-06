@@ -16,9 +16,9 @@
 #include "spl_vers.h" // pull in version numbers and the build number
 
 #define VERSINFO_COPYRIGHT   "Copyright © 1999-2023 Open Salamander Authors"
-#define VERSINFO_COMPANY     "Open Salamander"
+#define VERSINFO_COMPANY     "NerdOne Commander"
 
-#define VERSINFO_DESCRIPTION "Internet Explorer Viewer for Open Salamander"
+#define VERSINFO_DESCRIPTION "Internet Explorer Viewer for NerdOne Commander"
 
 #ifdef _LANG
 #define VERSINFO_INTERNAL    "ENGLISH"

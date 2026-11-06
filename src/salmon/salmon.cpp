@@ -15,7 +15,7 @@ extern TDirectArray<CBugReport> BugReports(1, 10);
 char LatestBugReport[MAX_PATH] = {0}; // name of the most recent bug report (name only, without extension)
 BOOL ReportOldBugs = TRUE;            // the user allowed uploading old reports as well
 
-const char* APP_NAME = "Open Salamander Bug Reporter";
+const char* APP_NAME = "NerdOne Commander Bug Reporter";
 
 // ****************************************************************************
 
@@ -321,14 +321,14 @@ BOOL RestartSalamander(HWND hParent)
 {
     char path[MAX_PATH];
     GetModuleFileName(NULL, path, MAX_PATH);
-    *(strrchr(path, '\\')) = '\0'; // strip \salamand.exe
-    char* p = strrchr(path, '\\'); // strip \plugins
+    *(strrchr(path, '\\')) = '\0'; // strip \salmon.exe
+    char* p = strrchr(path, '\\'); // strip \utils
     if (p != NULL)
     {
         *p = 0;
         char initDir[MAX_PATH];
         strcpy(initDir, path);
-        strcat(path, "\\salamand.exe");
+        strcat(path, "\\nerdone.exe");
         SHELLEXECUTEINFO se;
         memset(&se, 0, sizeof(SHELLEXECUTEINFO));
         se.cbSize = sizeof(SHELLEXECUTEINFO);
@@ -756,7 +756,7 @@ BOOL GetStringSid(LPTSTR* stringSid)
     return TRUE;
 }
 
-#define SALMON_MAINDLG_MUTEX_NAME "AltapSalamanderSalmonMainDialog"
+#define SALMON_MAINDLG_MUTEX_NAME "NerdOneCommander.SalmonMainDialog"
 
 class CMainDialogMutex
 {

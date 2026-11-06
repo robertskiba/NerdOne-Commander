@@ -105,7 +105,7 @@ int MyEntryPoint()
         ret = WinMainCRTStartup();
     }
     else
-        MessageBox(NULL, "Open Salamander Bug Reporter (salmon.exe) initialization has failed. Please reinstall Open Salamander.",
+        MessageBox(NULL, "NerdOne Commander Bug Reporter (salmon.exe) initialization has failed. Please reinstall NerdOne Commander.",
                    SALAMANDER_TEXT_VERSION, MB_OK | MB_ICONSTOP);
 
     // the debugger no longer gets this far; we crash in the RTL (tested with VC 2008 and our RTL)
@@ -206,8 +206,8 @@ const char* SALCF_FAKE_REALPATH = "SalFakeRealPath";
 const char* SALCF_FAKE_SRCTYPE = "SalFakeSrcType";
 const char* SALCF_FAKE_SRCFSPATH = "SalFakeSrcFSPath";
 
-const char* MAINWINDOW_NAME = "Open Salamander";
-const char* CMAINWINDOW_CLASSNAME = "SalamanderMainWindowVer25";
+const char* MAINWINDOW_NAME = NERDONE_PRODUCT_NAME;
+const char* CMAINWINDOW_CLASSNAME = "NerdOneCommander.MainWindow";
 const char* SAVEBITS_CLASSNAME = "SalamanderSaveBits";
 const char* SHELLEXECUTE_CLASSNAME = "SalamanderShellExecute";
 
@@ -3725,7 +3725,7 @@ FIND_NEW_SLG_FILE:
         if (slgDialog.GetLanguagesCount() == 0)
         {
             MessageBox(NULL, "Unable to find any language file (.SLG) in subdirectory LANG.\n"
-                             "Please reinstall Open Salamander.",
+                             "Please reinstall NerdOne Commander.",
                        SALAMANDER_TEXT_VERSION, MB_OK | MB_ICONERROR);
             goto EXIT_1a;
         }
@@ -3786,7 +3786,7 @@ FIND_NEW_SLG_FILE:
             HANDLES(FreeLibrary(HLanguage));
         if (!newSLGFile) // The saved .SLG file probably no longer exists; try to find another one.
         {
-            sprintf(errorText, "File %s was not found or is not valid language file.\nOpen Salamander "
+            sprintf(errorText, "File %s was not found or is not valid language file.\nNerdOne Commander "
                                "will try to search for some other language file (.SLG).",
                     path);
             MessageBox(NULL, errorText, SALAMANDER_TEXT_VERSION, MB_OK | MB_ICONERROR);
@@ -3796,9 +3796,9 @@ FIND_NEW_SLG_FILE:
         else // This should not happen at all - the .SLG file has already been validated
         {
             sprintf(errorText, "File %s was not found or is not valid language file.\n"
-                               "Please run Open Salamander again and try to choose some other language file.",
+                               "Please run NerdOne Commander again and try to choose some other language file.",
                     path);
-            MessageBox(NULL, errorText, "Open Salamander", MB_OK | MB_ICONERROR);
+            MessageBox(NULL, errorText, MAINWINDOW_NAME, MB_OK | MB_ICONERROR);
             goto EXIT_1a;
         }
     }
@@ -4373,7 +4373,7 @@ FIND_NEW_SLG_FILE:
                                         HWND hParent = NULL;
                                         if (MainWindow != NULL)
                                             hParent = MainWindow->HWindow;
-                                        MessageBox(hParent, "_CrtCheckMemory failed. Look to the Trace Server for details.", "Open Salamander", MB_OK | MB_ICONERROR);
+                                        MessageBox(hParent, "_CrtCheckMemory failed. Look to the Trace Server for details.", MAINWINDOW_NAME, MB_OK | MB_ICONERROR);
                                     }
                                     LastCrtCheckMemoryTime = GetTickCount();
                                 }

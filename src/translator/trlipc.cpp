@@ -7,7 +7,7 @@
 #include "wndlayt.h"
 #include "trlipc.h"
 
-const char* SHARED_MEMORY_NAME = "Local\\AltapTranslatorSharedMemory";
+const char* SHARED_MEMORY_NAME = "Local\\NerdOneCommander.TranslatorSharedMemory";
 
 #define SHARED_MEMORY_VERSION 1
 

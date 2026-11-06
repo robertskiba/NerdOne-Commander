@@ -54,6 +54,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros">
   </PropertyGroup>
+  <PropertyGroup>
+    <!-- NerdOne Commander: the project keeps its name, the program file is nerdone.exe (see doc/naming.md) -->
+    <TargetName>nerdone</TargetName>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <LanguageStandard>stdcpplatest</LanguageStandard>

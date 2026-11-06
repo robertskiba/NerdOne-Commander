@@ -10,6 +10,14 @@ Basis: Open Salamander 5.0 (Stand `a201fa3`).
 
 ### Geändert
 
+- Programm heißt jetzt **NerdOne Commander** (Version 0.1.0-alpha), siehe `doc/naming.md`:
+  - Programmdatei `nerdone.exe` statt `salamand.exe`.
+  - Sichtbarer Name in Fenstertitel, Menüs, Dialogen, Meldungen und Versionsinfos; der Über-Dialog nennt Open Salamander als Grundlage.
+  - Eigene interne Kennungen (Mutex, Events, Shared Memory, Fensterklasse) mit Präfix `NerdOneCommander.` und eine neue CLSID für die Shell-Erweiterung, damit NerdOne Commander und Open Salamander nebeneinander laufen.
+  - Konfiguration liegt (bis zur Umstellung auf Dateien) unter `HKCU\Software\NerdOne Commander`; Einstellungen von Open Salamander 5.0 und Altap Salamander 4.0 lassen sich importieren.
+  - Benutzerdaten (Absturzberichte, Konfigurations-Export, Skripte) liegen unter `%APPDATA%\NerdOne Commander` bzw. `%LOCALAPPDATA%\NerdOne Commander`.
+  - Intern bleiben die Plugin-API-Version (Salamander 5.0, API 103) und die Konfigurationsversion unverändert, damit vorhandene Plugins weiter laden.
+- Konfigurationen von Open Salamander und Altap Salamander werden beim Import nie gelöscht; entfernt werden können nur noch eigene Konfigurationen.
 - Build auf Visual Studio 2026 umgestellt: alle Projekte nutzen Platform Toolset v145.
 - `build.cmd`, `rebuild.cmd` und `sfxmake.bat` finden MSBuild über `vswhere` (VS2026 oder neuer) statt über einen fest eingetragenen VS2022-Pfad.
 - CI-Build (GitHub Actions) läuft auf `windows-2025` mit VS2026, nur noch für x64, und startet jetzt auch bei jedem Push.

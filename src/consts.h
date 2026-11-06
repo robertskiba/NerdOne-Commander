@@ -592,7 +592,7 @@ void InitDefaultDir();        // initializes the DefaultDir array (last visited 
 // an error to TRACE (non-fatal). 'delay' is the delay before the window is
 // opened (counted from the call to CreateSafeWaitWindow).
 // 'message' may span multiple lines; individual lines are separated by '\n'.
-// 'caption' may be NULL; in that case, the caption "Open Salamander" is used.
+// 'caption' may be NULL; in that case, the caption "NerdOne Commander" (MAINWINDOW_NAME) is used.
 // 'showCloseButton' specifies whether the window contains a Close button.
 // 'hForegroundWnd' specifies the window that must be active for the wait window
 // to be shown and the window that will be activated when the wait window is clicked.
@@ -1743,7 +1743,7 @@ extern char RTCErrorDescription[RTC_ERROR_DESCRIPTION_SIZE];
 //#endif // MSVC_RUNTIME_CHECKS
 
 // path where the bug report and minidump are created: before Vista, next to
-// salamand.exe; in Vista and later, in CSIDL_APPDATA + "\\Open Salamander"
+// nerdone.exe; in Vista and later, in CSIDL_APPDATA + "\\NerdOne Commander"
 extern char BugReportPath[MAX_PATH];
 
 // name of the file that will be imported into the registry if it exists
@@ -2113,7 +2113,7 @@ int GetWMCommandFromSalCmd(int salCmd);
 //******************************************************************************
 
 // number of items in the SalamanderConfigurationRoots array
-#define SALCFG_ROOTS_COUNT 2
+#define SALCFG_ROOTS_COUNT 3
 
 // ID of the main thread (valid only after entering WinMain())
 extern DWORD MainThreadID;
@@ -2432,10 +2432,10 @@ void GetCommonFileTypeStr(char* buf, int* resLen, const char* ext);
 // separators appeared in the context menu on .bar files)
 void RemoveUselessSeparatorsFromMenu(HMENU h);
 
-// returns the "Open Salamander" directory in the CSIDL_APPDATA path in 'buf' (buffer of size MAX_PATH)
+// returns the "NerdOne Commander" directory in the CSIDL_APPDATA path in 'buf' (buffer of size MAX_PATH)
 BOOL GetOurPathInRoamingAPPDATA(char* buf);
 
-// creates the "Open Salamander" directory in the CSIDL_APPDATA path; returns TRUE if the path
+// creates the "NerdOne Commander" directory in the CSIDL_APPDATA path; returns TRUE if the path
 // fits into MAX_PATH (its existence is not guaranteed and the result of CreateDirectory is not checked);
 // if 'buf' is not NULL it is a buffer of size MAX_PATH that receives this path
 // NOTE: Vista+ only

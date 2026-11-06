@@ -8,7 +8,7 @@
 
 #include "config.h"
 
-const char* DB_ROOT_KEY = "Software\\Open Salamander\\Bug Reporter";
+const char* DB_ROOT_KEY = "Software\\NerdOne Commander\\Bug Reporter"; // keep in sync with salmoncl.cpp (BUG_REPORTER_KEY)
 const char* CONFIG_EMAIL_REG = "Email";
 
 CConfiguration Config;

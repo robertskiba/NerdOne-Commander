@@ -16,9 +16,9 @@
 #include "spl_vers.h" // pull version and build numbers
 
 #define VERSINFO_COPYRIGHT   "Copyright © 2005-2023 Open Salamander Authors"
-#define VERSINFO_COMPANY     "Open Salamander"
+#define VERSINFO_COMPANY     "NerdOne Commander"
 
-#define VERSINFO_DESCRIPTION "UnOLE plugin for Open Salamander"
+#define VERSINFO_DESCRIPTION "UnOLE plugin for NerdOne Commander"
 
 #ifdef _LANG
 #define VERSINFO_INTERNAL    "ENGLISH"

@@ -14,7 +14,7 @@
 
 STRINGTABLE
 {
- IDS_PLUGIN_DESCRIPTION, "Check for updates of Open Salamander and plugins."
+ IDS_PLUGIN_DESCRIPTION, "Check for updates of NerdOne Commander and plugins."
  IDS_ABOUT, "About Plugin"
  IDS_CTXMENU_OPEN, "Open"
  IDS_CTXMENU_COPY, "Copy URL to Clipboard"
@@ -48,7 +48,7 @@ STRINGTABLE
  IDS_NONEW_MODULES, "No new modules are available now."
  IDS_BTN_CHECK, "Check &Now"
  IDS_BTN_STOP, "&Stop"
- IDS_COPYRIGHT1, "CheckVer %s - Check for the latest versions of Open Salamander and plugins."
+ IDS_COPYRIGHT1, "CheckVer %s - Check for the latest versions of NerdOne Commander and plugins."
  IDS_COPYRIGHT2, "Click Configure to change Internet connection settings or to change checking frequency."
  IDS_LAST_CHECK, "Date of the last check: %s."
  IDS_SKIP_CHECK, "Press Close button to skip checking."

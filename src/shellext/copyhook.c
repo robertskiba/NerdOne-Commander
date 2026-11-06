@@ -341,7 +341,7 @@ CH_CopyCallback(THIS_ HWND hwnd, UINT wFunc, UINT wFlags,
 
             if (samePIDAndTIDMsg || salBusyMsg)
             {
-                MessageBox(hwnd, text, "Open Salamander", MB_OK | MB_ICONEXCLAMATION);
+                MessageBox(hwnd, text, "NerdOne Commander", MB_OK | MB_ICONEXCLAMATION);
             }
         }
     }

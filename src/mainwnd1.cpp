@@ -23,7 +23,7 @@
 
 #include "versinfo.rh2"
 
-const char* SALAMANDER_TEXT_VERSION = "Open Salamander " VERSINFO_VERSION;
+const char* SALAMANDER_TEXT_VERSION = NERDONE_PRODUCT_NAME " " VERSINFO_VERSION; // e.g. "NerdOne Commander 0.1.0-alpha (x64)"
 
 //****************************************************************************
 //

@@ -27,13 +27,15 @@ BOOL FirstInstance_3_or_later = FALSE;
 
 // WARNING: if you change this, adjust salbreak.exe as well; just send me the info ... thanks, Petr
 
-const char* AS_PROCESSLIST_NAME = "AltapSalamander3bProcessList";                               // shared memory CProcessList
-const char* AS_PROCESSLIST_MUTEX_NAME = "AltapSalamander3bProcessListMutex";                    // synchronization for accessing shared memory
-const char* AS_PROCESSLIST_EVENT_NAME = "AltapSalamander3bProcessListEvent";                    // firing the event (what should happen is stored in shared memory)
-const char* AS_PROCESSLIST_EVENT_PROCESSED_NAME = "AltapSalamander3bProcessListEventProcessed"; // the fired event has been processed
+// NerdOne Commander: all names use the "NerdOneCommander." prefix (see doc/naming.md) so that
+// NerdOne Commander and Open Salamander can run side by side without sharing these objects
+const char* AS_PROCESSLIST_NAME = "NerdOneCommander.ProcessList";                               // shared memory CProcessList
+const char* AS_PROCESSLIST_MUTEX_NAME = "NerdOneCommander.ProcessListMutex";                    // synchronization for accessing shared memory
+const char* AS_PROCESSLIST_EVENT_NAME = "NerdOneCommander.ProcessListEvent";                    // firing the event (what should happen is stored in shared memory)
+const char* AS_PROCESSLIST_EVENT_PROCESSED_NAME = "NerdOneCommander.ProcessListEventProcessed"; // the fired event has been processed
 
-const char* FIRST_SALAMANDER_MUTEX_NAME = "AltapSalamanderFirstInstance";     // introduced in AS 2.52 beta 1
-const char* LOADSAVE_REGISTRY_MUTEX_NAME = "AltapSalamanderLoadSaveRegistry"; // introduced in AS 2.52 beta 1
+const char* FIRST_SALAMANDER_MUTEX_NAME = "NerdOneCommander.FirstInstance";     // introduced in AS 2.52 beta 1
+const char* LOADSAVE_REGISTRY_MUTEX_NAME = "NerdOneCommander.LoadSaveRegistry"; // introduced in AS 2.52 beta 1
 
 // path used to save the bug report and minidump; later Salmon packs them into 7z and uploads them to the server
 char BugReportPath[MAX_PATH] = "";

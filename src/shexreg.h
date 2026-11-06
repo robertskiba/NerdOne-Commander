@@ -55,9 +55,11 @@
 // salextx86.dll + salextx64.dll (Salamander 3.07) class id:       c78b614d-f3ea-11d2-94a1-00e0292a01e3
 // salextx86.dll + salextx64.dll (Salamander 3.08) class id:       c78b614e-f3ea-11d2-94a1-00e0292a01e3
 // salextx86.dll + salextx64.dll (Salamander 4.0) class id:        c78b614f-f3ea-11d2-94a1-00e0292a01e3
+// salextx64.dll (NerdOne Commander 0.1.0) class id:               6f71930b-10ff-41fe-9cd0-4a154eb2e25f (new GUID so it does not collide with Open Salamander's registration)
 //
 
-DEFINE_GUID(CLSID_ShellExtension, 0xc78b614fL, 0xf3ea, 0x11d2, 0x94, 0xa1, 0x00, 0xe0, 0x29, 0x2a, 0x01, 0xe3);
+//DEFINE_GUID(CLSID_ShellExtension, 0xc78b614fL, 0xf3ea, 0x11d2, 0x94, 0xa1, 0x00, 0xe0, 0x29, 0x2a, 0x01, 0xe3); // Open Salamander 4.0/5.0
+DEFINE_GUID(CLSID_ShellExtension, 0x6f71930bL, 0x10ff, 0x41fe, 0x9c, 0xd0, 0x4a, 0x15, 0x4e, 0xb2, 0xe2, 0x5f);
 
 //
 // suffix appended to keep the shell-extension registry name unique (SHEXREG_OPENSALAMANDER)
@@ -102,8 +104,9 @@ DEFINE_GUID(CLSID_ShellExtension, 0xc78b614fL, 0xf3ea, 0x11d2, 0x94, 0xa1, 0x00,
 // Altap Salamander 4.0 beta 1               - 400B1_2 (second attempt to ship "4.0 beta 1")
 // Altap Salamander 4.0                      - 400
 // Open Salamander 5.0                       - 500
+// NerdOne Commander 0.1.0                   - 010     (registry name is now "NerdOneCommander" + suffix, see SHEXREG_OPENSALAMANDER)
 
-#define SALSHEXT_SHAREDNAMESAPPENDIX "500"
+#define SALSHEXT_SHAREDNAMESAPPENDIX "010"
 
 #ifdef ENABLE_SH_MENU_EXT
 
