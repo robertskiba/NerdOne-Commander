@@ -2013,54 +2013,6 @@ void CCallStack::PrintBugReport(EXCEPTION_POINTERS* Exception, DWORD ThreadID, D
                                         ctx.Rsp += sizeof(DWORD64);
                                     }
                                 }
-#else
-                                CModuleInfo* modInfo = ModulesInfo.Find((void*)ctx.Eip);
-                                const char* name;
-                                if (modInfo == NULL)
-                                {
-                                    name = FindModuleName(nameBuf, (void*)ctx.Eip, TRUE);
-                                    if (*name == 0)
-                                        name = "(unknown module)";
-                                }
-                                else
-                                    name = modInfo->Name;
-                                sprintf(buf, "EIP = 0x%p %s", (void*)ctx.Eip, name);
-                                PrintLine(param, buf, TRUE);
-                                // esp may point somewhere invalid - prepare for it
-                                __try
-                                {
-                                    // *(ebp) is the frame pointer of the calling function
-                                    // *(ebp + 4) is the return address (the place in the calling function where
-                                    //            execution will resume after we return from this function)
-                                    DWORD* ebp = (DWORD*)ctx.Ebp;
-
-                                    int j;
-                                    for (j = 0; j < 50; j++)
-                                    {
-                                        DWORD retAddr = ebp[1]; // return address *(ebp + 4)
-                                        if (retAddr == 0)
-                                            break;
-                                        modInfo = ModulesInfo.Find((void*)retAddr);
-                                        if (modInfo == NULL)
-                                        {
-                                            name = FindModuleName(nameBuf, (void*)retAddr, TRUE);
-                                            if (*name == 0)
-                                                name = "(unknown module)";
-                                        }
-                                        else
-                                            name = modInfo->Name;
-                                        sprintf(buf, "0x%p %s", (void*)retAddr, name);
-
-                                        PrintLine(param, buf, TRUE);
-
-                                        // move to the stack frame of the caller function (*ebp)
-                                        ebp = (DWORD*)ebp[0];
-                                    }
-                                }
-                                __except (EXCEPTION_EXECUTE_HANDLER)
-                                {
-                                    PrintLine(param, "(exception)", TRUE);
-                                }
                             }
                             if (stack->ThreadID != GetCurrentThreadId())
                                 ResumeThread(hThread);
@@ -2155,54 +2107,6 @@ void CCallStack::PrintBugReport(EXCEPTION_POINTERS* Exception, DWORD ThreadID, D
                                 ctx.Rip = *(DWORD64*)(ctx.Rsp);
                                 ctx.Rsp += sizeof(DWORD64);
                             }
-                        }
-#else
-                        CModuleInfo* modInfo = ModulesInfo.Find((void*)ctx.Eip);
-                        const char* name;
-                        if (modInfo == NULL)
-                        {
-                            name = FindModuleName(nameBuf, (void*)ctx.Eip, TRUE);
-                            if (*name == 0)
-                                name = "(unknown module)";
-                        }
-                        else
-                            name = modInfo->Name;
-                        sprintf(buf, "EIP = 0x%p %s", (void*)ctx.Eip, name);
-                        PrintLine(param, buf, TRUE);
-                        // esp may point somewhere invalid - prepare for it
-                        __try
-                        {
-                            // *(ebp) is the frame pointer of the calling function
-                            // *(ebp + 4) is the return address (the place in the calling function where
-                            //            execution will resume after we return from this function)
-                            DWORD* ebp = (DWORD*)ctx.Ebp;
-
-                            int j;
-                            for (j = 0; j < 50; j++)
-                            {
-                                DWORD retAddr = ebp[1]; // return address *(ebp + 4)
-                                if (retAddr == 0)
-                                    break;
-                                modInfo = ModulesInfo.Find((void*)retAddr);
-                                if (modInfo == NULL)
-                                {
-                                    name = FindModuleName(nameBuf, (void*)retAddr, TRUE);
-                                    if (*name == 0)
-                                        name = "(unknown module)";
-                                }
-                                else
-                                    name = modInfo->Name;
-                                sprintf(buf, "0x%p %s", (void*)retAddr, name);
-
-                                PrintLine(param, buf, TRUE);
-
-                                // move to the stack frame of the caller function (*ebp)
-                                ebp = (DWORD*)ebp[0];
-                            }
-                        }
-                        __except (EXCEPTION_EXECUTE_HANDLER)
-                        {
-                            PrintLine(param, "(exception)", TRUE);
                         }
                     }
                 }
