@@ -17,13 +17,13 @@ concurrency:
 
 jobs:
   build:
-    name: Build ${{ matrix.platform }} Debug (fail on warnings)
+    name: Build x64 ${{ matrix.configuration }} (fail on warnings)
     runs-on: windows-2025
 
     strategy:
       fail-fast: false
       matrix:
-        platform: ["x64"]
+        configuration: ["Debug", "Release"]
 
     defaults:
       run:
@@ -31,9 +31,11 @@ jobs:
         working-directory: s
 
     env:
-      BUILD_CONFIGURATION: Debug
+      BUILD_CONFIGURATION: ${{ matrix.configuration }}
       SOLUTION_PATH: '.\src\vcxproj\salamand.sln'
       LOG_DIRECTORY: build_logs
+      # common output root of all projects (must end with a backslash)
+      OPENSAL_BUILD_DIR: ${{ github.workspace }}\build\
 
     steps:
       - name: Checkout
@@ -52,22 +54,21 @@ jobs:
       - name: Register MSVC problem matcher
         uses: ammaraskar/msvc-problem-matcher@master
 
-      - name: Build via MSBuild (Debug | ${{ matrix.platform }})
+      - name: Build via MSBuild (${{ matrix.configuration }} | x64)
         run: |
           $logDir = Join-Path (Get-Location) $env:LOG_DIRECTORY
           New-Item -ItemType Directory -Force -Path $logDir | Out-Null
+          New-Item -ItemType Directory -Force -Path $env:OPENSAL_BUILD_DIR | Out-Null
 
-          $suffix = "${{ matrix.platform }}-run$($env:GITHUB_RUN_NUMBER)"
-          $txtLog = Join-Path $logDir "msbuild-$($env:BUILD_CONFIGURATION)-$suffix.log"
-
+          $txtLog = Join-Path $logDir "msbuild-$($env:BUILD_CONFIGURATION)-x64-run$($env:GITHUB_RUN_NUMBER).log"
           Add-Content -Path $env:GITHUB_ENV -Value "LOG_PATH=$txtLog"
-          
+
           $arguments = @(
             $env:SOLUTION_PATH
             '/m'
             '/t:Rebuild'
             "/p:Configuration=$($env:BUILD_CONFIGURATION)"
-            "/p:Platform=${{ matrix.platform }}"
+            '/p:Platform=x64'
             '/p:PreferredToolArchitecture=x64'
             '/warnaserror'
             '/nr:false'
@@ -81,11 +82,32 @@ jobs:
             exit $LASTEXITCODE
           }
 
+      - name: Package portable ZIP
+        id: package
+        if: matrix.configuration == 'Release'
+        run: ./tools/make_portable.ps1
+
+      - name: Upload portable ZIP
+        if: matrix.configuration == 'Release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.package.outputs.name }}
+          path: ${{ steps.package.outputs.zip }}
+          if-no-files-found: error
+
+      - name: Upload debug symbols
+        if: matrix.configuration == 'Release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.package.outputs.name }}-symbols
+          path: ${{ steps.package.outputs.symbols }}
+          if-no-files-found: warn
+
       - name: Upload build logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: msbuild-${{ matrix.platform }}-debug-logs
+          name: msbuild-x64-${{ matrix.configuration }}-logs
           path: |
             ${{ env.LOG_PATH }}
           if-no-files-found: warn
