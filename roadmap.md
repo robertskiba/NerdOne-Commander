@@ -39,6 +39,7 @@ Zielplattform: Windows 11, wenn möglich auch Windows 10.
 
 - [ ] Update-Prüfung (CheckVer) auf das eigene GitHub-Repo umstellen
 - [ ] Portabler Modus: ohne Installation lauffähig, möglichst als eine EXE
+- [ ] Umbenennung in „NerdOne Commander“ (`nerdone.exe`) mit eigenen Kennungen laut `doc/naming.md`
 - [ ] Konfiguration in Dateien statt in der Registry; Registry nur noch für die Windows-Integration (z. B. Shell-Erweiterung)
 - [ ] Bildbetrachter: Ersatz für die fehlende PictView-Engine, ausschließlich OSS (ohne WIC)
 - [ ] Bildbetrachter unterstützt alle aktuellen Bildformate, die ein Mobiltelefon liefern kann (z. B. HEIC)
