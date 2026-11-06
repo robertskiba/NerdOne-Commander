@@ -40,6 +40,7 @@ Zielplattform: Windows 11, wenn möglich auch Windows 10.
 - [ ] Portabler Modus: ohne Installation lauffähig, möglichst als eine EXE
 - [ ] Bildbetrachter: Ersatz für die fehlende PictView-Engine, ausschließlich OSS (ohne WIC)
 - [ ] Viewer für PDF, HTML und Markdown mit PDFium, litehtml und md4c
+- [ ] RAR-Plugin von der proprietären unrar.dll auf den quelloffenen RAR-Entpacker von 7-Zip umstellen
 
 ## Fehler prüfen
 
