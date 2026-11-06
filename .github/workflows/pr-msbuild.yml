@@ -82,16 +82,18 @@ jobs:
             exit $LASTEXITCODE
           }
 
-      - name: Build utilities via MSBuild (Utils (Release) | x64)
-        # salopen, salspawn, the shell extension and zip2sfx are only built in this
-        # solution configuration; their post-build step copies them to Release_x64\utils
+      - name: Build helpers via MSBuild (Utils (Release) | x64)
+        # salopen, salspawn and the shell extension are only built in this solution
+        # configuration; their post-build step copies them to Release_x64\utils.
+        # The other Utils projects (tserver, translator, sfx7zip, zip2sfx) are not needed
+        # by the program and still have 64-bit conversion warnings, so they are skipped.
         if: matrix.configuration == 'Release'
         run: |
           $txtLog = Join-Path (Join-Path (Get-Location) $env:LOG_DIRECTORY) "msbuild-Utils-x64-run$($env:GITHUB_RUN_NUMBER).log"
           $arguments = @(
             $env:SOLUTION_PATH
             '/m'
-            '/t:Build'
+            '/t:salopen;salspawn;salextx64'
             '/p:Configuration=Utils (Release)'
             '/p:Platform=x64'
             '/p:PreferredToolArchitecture=x64'
