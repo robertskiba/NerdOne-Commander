@@ -17,7 +17,7 @@ Zielplattform: Windows 11, wenn möglich auch Windows 10.
 
 - [x] Projekte auf Platform Toolset v145 (VS2026) umgestellt (Branch `vs2026`)
 - [ ] Visual Studio 2026 mit C++-Workload und Windows SDK installieren
-- [ ] Solution mit VS2026 bauen und Build-Fehler beheben
+- [x] Solution mit VS2026 bauen und Build-Fehler beheben (Debug x64 im CI fehlerfrei, 06.11.2026; Release noch offen)
 - [ ] Weiterentwicklung ab hier mit VS2026
 
 ## Phase 3 – Alte Zöpfe abschneiden
