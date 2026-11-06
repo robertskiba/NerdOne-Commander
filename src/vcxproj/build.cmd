@@ -14,8 +14,10 @@ if "%~1"=="help" (
 where msbuild >nul 2>&1
 if %errorlevel% neq 0 set NO_MSBUILD=1
 
-:: Assume a default location (as per the authors of OpenSalamander preference)
-set MSB=C:\Program Files\Microsoft Visual Studio\2022\Community\Msbuild\Current\Bin\MSBuild.exe
+:: Locate MSBuild of Visual Studio 2026 (version 18) or newer
+set "MSB="
+set "VSWHERE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
+if exist "%VSWHERE%" for /f "usebackq delims=" %%i in (`"%VSWHERE%" -latest -version 18.0 -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe`) do set "MSB=%%i"
 
 if not exist "%MSB%" (
   if defined NO_MSBUILD (

@@ -1,6 +1,9 @@
 @echo off
 
-set MSB=C:\Program Files\Microsoft Visual Studio\2022\Community\Msbuild\Current\Bin\MSBuild.exe
+:: Locate MSBuild of Visual Studio 2026 (version 18) or newer
+set "MSB="
+set "VSWHERE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
+if exist "%VSWHERE%" for /f "usebackq delims=" %%i in (`"%VSWHERE%" -latest -version 18.0 -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe`) do set "MSB=%%i"
 
 if "%OPENSAL_BUILD_DIR%"=="" (
   echo Please set OPENSAL_BUILD_DIR environment variable.
@@ -10,7 +13,7 @@ if "%OPENSAL_BUILD_DIR%"=="" (
 )
 
 if not exist "%MSB%" (
-  echo MSBuild.exe not found: %MSB%
+  echo MSBuild.exe of Visual Studio 2026 or newer not found.
   echo.
   pause
   exit /b
